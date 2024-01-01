@@ -967,13 +967,15 @@ public class TermDepositApplication {
 			prematureEncashmentButton = new JButton("Authorize Pre Mature");
 			prematureEncashmentButton.setBounds(274, 733, 143, 23);
 			panel.add(prematureEncashmentButton);
+			final float profitpaid=totalProfitPaid;
+			final float actualprofit=payableProfit;
 			prematureEncashmentButton.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
 					
-					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto);
+					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto,profitpaid,actualprofit);
 					if(updatepreencashstatus)
 					{
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);

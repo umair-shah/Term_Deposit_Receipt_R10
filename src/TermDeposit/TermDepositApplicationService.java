@@ -757,8 +757,54 @@ public class TermDepositApplicationService {
 		
 		return status;
 	}
-	public Boolean PrematureEncashmentTransaction(TermDepositApplicationDTO TDADTO)
+	public Boolean PrematureEncashmentTransaction(TermDepositApplicationDTO TDADTO,float profitPaid, float actualProfit)
 	{
+		String todayDate = Session.GetBranchDate();
+		java.sql.Date tdate=null;
+		try {
+			tdate= utility.toDate("yyyy-MM-dd", todayDate);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+		//if actual profit < profitpaid than princiapl_fund =princiapl_fund - profitdiff 
+		String PrincipalFundVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_cd from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Principal Credit') ,? ))";
+		String PrincipalFundDealVoucher="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
+		String PrincipalFundTransactionQuery="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
+		String updateCustAccountQuery= "Update account_tl set balance=balance+ ?  where account_id =? ";
+		String updateTdrAccountQuery= "Update account_tl set balance=balance- ?  where account_id =?";
+		
+		//if actual profit >= profitpaid 
+		String ProfitFundVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_cd from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Profit Credit') ,? ))";
+		String ProfitFundDealVoucher="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
+		//Query to be maid 
+		String InternalExpenseAccount="select account_id from internal_account where account_type = 'Expense'";
+		String ProfitCrdTransactionQuery="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
+		String ProfitDbtTransactionQuery="insert into transaction_tl (Amount,?,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
+		String ProfitUpdateCustAccount= "Update account_tl set balance=balance+ ?  where account_id =? ";
+		String ProfitUpdateExpAccount= "Update account_tl set balance=balance- ?  where account_id =?";
+		
+		// with hodling tax 
+		String withHoldingTaxVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_cd from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Profit Credit') ,? ))";
+		String withHoldingTaxDealVoucher="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
+		// Query to be maid
+		String withHoldingTaxaccount = "Select account_id from internal_account where account_Type= 'with holding tax'";
+		String withHoldingTaxDebitTransaction="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  )"; //TDR profit WHT transaction_type_id
+		String withHoldingTaxCreditTransaction="insert into transaction_tl (Amount,internal_account_id,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  )"; //TDR profit WHT transaction_type_id
+		String TaxUpdateCustAccount="Update account_tl set balance=balance- ?  where account_id =?";
+		String TaxUpdateTaxAccount="Update account_tl set balance=balance+ ?  where account_id =?";
+		
+		String TDRAppAuthorizeQuery="update tdr_application set tdr_app_status=(Select ID from tdr_app_status where DESC='Closed Premature') where application_id = ?";
+		String TDRDealStatusUpdateQuery="update tdr_deal set deal_status =(Select ID from tdr_deal_status where DESC='Premature Closed') where application_id = ?";
+		
+		Connection lcl_conn_dt = utility.db_conn();
+
+		try 
+		{
+			lcl_conn_dt.setAutoCommit(false);
+			lcl_conn_dt.setTransactionIsolation(lcl_conn_dt.TRANSACTION_READ_COMMITTED);
+			PreparedStatement preparedStatement = lcl_conn_dt.prepareStatement(CreateVoucherquery);
+					
+				
 		return true;
 	}
 	public Boolean UpdateTDRPreEncashment(TermDepositApplicationDTO TDADTO) 
