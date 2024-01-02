@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 	{
 		try 
 		{
-			Class.forName("com.ibm.db2.jcc.DB2Driver");
+			Class.forName("COM.ibm.db2.jdbc.app.DB2Driver");
 
 		} 
 		catch (ClassNotFoundException e1) 
@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat;
 		try
 		{
 			 //lcl_conn = java.sql.DriverManager.getConnection("jdbc:db2://10.51.41.100:50000/US27501", "db2admin", "admin123/?");
-			lcl_conn = java.sql.DriverManager.getConnection("jdbc:db2://localhost:50000/US27501", "db2admin", "db2admin/?");
+			lcl_conn = java.sql.DriverManager.getConnection("jdbc:db2:US27501", "db2admin", "admin123/?");
 			if(lcl_conn != null)
 			{
 				return lcl_conn;

@@ -6,6 +6,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Program Files/IBM/SQLLIB/java/db2jcc.jar"/>
+	<classpathentry kind="lib" path="D:/Material/db2java.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

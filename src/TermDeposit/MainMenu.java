@@ -212,8 +212,9 @@ public class MainMenu {
 	                  }
 	                  else
 	                  {
+	                	  TermDepositEOD TDEOD = new TermDepositEOD();
 	                	  // Handle the selected date
-	                	  System.out.println("Date selected: " + date);
+	                	  //System.out.println("Date selected: " + date);
 	              
 
 	                	  // Use the format method of the SimpleDateFormat object to convert the java.util.Date variable to the desired format
@@ -223,10 +224,28 @@ public class MainMenu {
 	                	  System.out.println(formattedDate);
 	                	  try 
 	                	  {
-	                		  br.SetDate(formattedDate);
-	                		  brnDtField.setText(Session.GetBranchDate());
+	                		  if(TDEOD.CheckTDRAuthPendingTask() != 0)
+	                		  {
+	                			  JOptionPane.showMessageDialog(null, "TDR Authorization Queue is not Empty ", "Invalid Operation", JOptionPane.ERROR_MESSAGE);
+	                		  }
+	                		  else if(TDEOD.CheckTDRAuthPendingTask() != 0)
+	                		  {
+	                			  JOptionPane.showMessageDialog(null, "TDR Pre Mature Authorization Queue is not Empty ", "Invalid Operation", JOptionPane.ERROR_MESSAGE);
+	                		  }
+	                		  else if(TDEOD.CheckTDRPreMatureAuth() != 0)
+	                		  {
+	                			  JOptionPane.showMessageDialog(null, "TDR Opening Authorization Queue is not Empty ", "Invalid Operation", JOptionPane.ERROR_MESSAGE);
+
+	                		  }
+	                		  else {
+	                			  TDEOD.TDRMonthlyPayoutProcess(Session.GetBranchDate(),formattedDate);
+//	                			  br.SetDate(formattedDate);
+//		                		  brnDtField.setText(Session.GetBranchDate());
+		                		  
+	                		  }
+	                		 
 	                	  } 
-	                	  catch (ParseException e1) 
+	                	  catch (Exception e1) 
 	                	  {
 	                		  // TODO Auto-generated catch block
 	                		  e1.printStackTrace();

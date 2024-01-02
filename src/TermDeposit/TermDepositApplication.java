@@ -773,7 +773,7 @@ public class TermDepositApplication {
 					String[] columnNames = {"S.No", "Account No","Amount", "Dr. / Cr."};
 				
 
-					Object[][] data = tdrService.GetTDROpeningVoucher(TDRAppDto);
+					Object[][] data = tdrService.GetTellerTDROpeningVoucher(TDRAppDto);
 						
 					
 					DefaultTableModel model = new DefaultTableModel(data, columnNames){
@@ -950,7 +950,6 @@ public class TermDepositApplication {
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					
 					boolean updatepreencashstatus= tdrService.UpdateTDRPreEncashment(TDRAppDto);
 					if(updatepreencashstatus)
 					{
@@ -964,18 +963,18 @@ public class TermDepositApplication {
 		}
 		else if(Session.getUserRoleId()==2)
 		{
+			final float paidprofit=totalProfitPaid;
+			final float actualProfit=payableProfit;
 			prematureEncashmentButton = new JButton("Authorize Pre Mature");
 			prematureEncashmentButton.setBounds(274, 733, 143, 23);
 			panel.add(prematureEncashmentButton);
-			final float profitpaid=totalProfitPaid;
-			final float actualprofit=payableProfit;
 			prematureEncashmentButton.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
 					
-					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto,profitpaid,actualprofit);
+					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto,paidprofit,actualProfit);
 					if(updatepreencashstatus)
 					{
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);

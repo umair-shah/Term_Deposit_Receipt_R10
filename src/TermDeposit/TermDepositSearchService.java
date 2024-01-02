@@ -79,8 +79,7 @@ public class TermDepositSearchService {
 				"from TDR_Application tdr INNER JOIN Account_tl acc ON tdr.account_id=acc.account_id INNER JOIN Branch_tl B ON B.brn_ID=acc.brn_Id " +
 				"INNER JOIN Customer C ON acc.Customer_id=C.Customer_id INNER JOIN account_type At ON At.acc_type_id=acc.acc_type_id INNER JOIN Currency " +
 				"curr ON acc.curr_cd_id = curr.ID inner join tdr_product tp " +
-				"on tdr.product_id = tp.ID " +
-				"where tdr.application_id= '"+Integer.parseInt(TDRNo.substring(0,5))+"'";
+				"on tdr.product_id = tp.ID where tdr.application_id= '"+Integer.parseInt(TDRNo.substring(0,5))+"'";
 
 		java.sql.Statement lcl_stmt;
 		try {
@@ -137,9 +136,8 @@ public class TermDepositSearchService {
 				"from TDR_Application tdr INNER JOIN Account_tl acc ON tdr.account_id=acc.account_id INNER JOIN Branch_tl B ON B.brn_ID=acc.brn_Id " +
 				"INNER JOIN Customer C ON acc.Customer_id=C.Customer_id INNER JOIN account_type At ON At.acc_type_id=acc.acc_type_id INNER JOIN Currency " +
 				"curr ON acc.curr_cd_id = curr.ID inner join tdr_deal td on td.tdr_app_id = tdr.application_id inner join tdr_product tp " +
-				"on tdr.product_id = tp.ID " +
-				"where td.deal_id = '"+Long.parseLong(DealId.substring(0,6))+"'";
-
+				"on tdr.product_id = tp.ID where td.deal_status=3 and  td.deal_id = '"+Long.parseLong(DealId.substring(0,6))+"'";
+		
 		java.sql.Statement lcl_stmt;
 		try {
 			//lcl_stmt= lcl_conn_dt.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
