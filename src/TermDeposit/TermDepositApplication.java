@@ -977,6 +977,44 @@ public class TermDepositApplication {
 					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto,paidprofit,actualProfit);
 					if(updatepreencashstatus)
 					{
+						final JFrame frame = new JFrame("TDR PreEncashment Voucher");
+						frame.setResizable(false);
+						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+						frame.setSize(834,362);
+						frame.setLocationRelativeTo(null);
+						frame.setVisible(true);
+						
+						JPanel panel = new JPanel();
+						panel.setBackground(new Color(0, 128, 128));
+						frame.getContentPane().add(panel, BorderLayout.CENTER);
+						panel.setLayout(null);
+
+						String[] columnNames = {"S.No", "Account No", "Account Title", "Amount", "Dr. / Cr."};
+					
+
+						Object[][] data = tdrService.GetTDRPreMatureVoucher(TDRAppDto);
+							
+						
+						DefaultTableModel model = new DefaultTableModel(data, columnNames){
+							 public boolean isCellEditable(int row, int column)
+							 {
+							     return false;
+							 }
+							};
+						
+						JTable TDROpeningVoucherTable = new JTable(model);
+						JScrollPane jScrollPane = new JScrollPane(TDROpeningVoucherTable);
+						jScrollPane.setForeground(Color.BLACK);
+						jScrollPane.setLocation(31, 44);
+						//termDepositTable.setBounds(142, 196, 202, -91);
+						panel.add(jScrollPane);
+						jScrollPane.setSize(771,173);
+						JButton btnBack = new JButton("Back");
+						btnBack.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) {
+								frame.dispose();
+							}
+							});
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
 					}
 					else{

@@ -260,7 +260,7 @@ public class TermDepositApplicationService {
 		String applicationNo=null;
 		Connection lcl_conn_dt = utility.db_conn();
 
-        String insertQuery = "SELECT lpad(APPLICATION_ID,5,'0'),Year(Application_date) FROM FINAL TABLE (INSERT INTO TDR_Application (Holder_name,Amount,Input_by,Maturity_date,Application_date,TDR_Request_DOC,TDR_App_status,Product_Id,Maturity_Action,Mode_of_fund,Principal_Fund_Crd_Acc_ID,Prof_Nom_Acc_ID,TDR_Request_Doc_Name,Account_ID ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?))";
+        String insertQuery = "SELECT lpad(APPLICATION_ID,5,'0'),Year(Application_date) FROM FINAL TABLE (INSERT INTO TDR_Application (Holder_name,Amount,Input_by,Maturity_date,Application_date,TDR_Request_DOC,TDR_App_status,Product_Id,Maturity_Action,Mode_of_fund,Principal_Fund_Crd_Acc_ID,Prof_Nom_Acc_ID,TDR_Request_Doc_Name,Account_ID,Last_payout_date ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?))";
         
         try {
     		
@@ -280,6 +280,8 @@ public class TermDepositApplicationService {
         	preparedStatement1.setLong(12, Long.parseLong(TDADTO.GetAccountID()));
         	preparedStatement1.setString(13,TDADTO.GetFileName());
         	preparedStatement1.setString(14,TDADTO.GetAccountID());
+        	preparedStatement1.setString(15,utility.addMonthToDate(todayDate, 1));
+
             
         	
 
@@ -380,7 +382,7 @@ public class TermDepositApplicationService {
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
-		String CreateVoucherquery = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_cd from Branch_tl where brn_cd= ?), 1 ,? ))";
+		String CreateVoucherquery = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_id from Branch_tl where brn_cd= ?), 1 ,? ))";
 		String dealVoucherQuery="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
 		String TransactionQuery="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
 		String updateCustAccountQuery= "Update account_tl set balance=balance- ? , block_amnt= block_amnt - ? where account_id =? ";
@@ -641,6 +643,135 @@ public class TermDepositApplicationService {
 //	{
 //		String =""
 //	}
+	
+	public  Object[][] GetTDRPreMatureVoucher(TermDepositApplicationDTO TDADTO)
+	{
+//		String accountSearchQuery = "Select B.brn_cd||lpad(At.acc_type_cd,4,'0')||Cus.Customer_no ||lpad(acc.run_no,2,'0') || acc.Check_digit As AccountNo, At.acc_type_cd from Account_tl acc inner join Branch_tl B on acc.brn_ID= B.brn_ID inner join Customer Cus on acc.Customer_ID= Cus.Customer_ID  inner join Account_type At on acc.Acc_type_ID = At.Acc_type_ID " +
+//				" WHERE acc.Account_ID in ('"+TDADTO.GetAccountID()+"','"+TDADTO.GetTDRAccountID()+"')";
+		String tdrVoucherQuery = "SELECT V.VOUCHER_ID FROM Voucher V INNER JOIN TDR_Deal_Voucher TDV ON TDV.VOUCHER_ID = V.VOUCHER_ID  " +
+				"WHERE DEAL_ID = (SELECT deal_id from tdr_deal where tdr_app_id= ?) AND  V.VOUCHER_TYPE_ID IN (2,3)";
+		
+		Connection lcl_conn_dt = utility.db_conn();		
+		ResultSet TDRVouchersRS = null;
+		PreparedStatement preparedStatement;
+		try {
+			preparedStatement = lcl_conn_dt.prepareStatement(tdrVoucherQuery, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			preparedStatement.setString(1, TDADTO.GetApplicationNo().substring(0, 5));
+			TDRVouchersRS = preparedStatement.executeQuery();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		
+		try {
+			TDRVouchersRS.last();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Move cursor to the last row
+		int voucherCount = 0;
+		try {
+			voucherCount = TDRVouchersRS.getRow();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Get the row count
+		int rowCount = 0;
+		if(voucherCount == 1)
+		{
+			rowCount = 2;
+		}
+		else if(voucherCount == 2)
+		{
+			rowCount = 5;
+		}
+		try {
+			TDRVouchersRS.beforeFirst();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Move cursor back to the top
+		
+		Object[][] data = new Object[rowCount][5];
+		int rowIndex=0;
+		
+		try {
+			while(TDRVouchersRS.next())
+			{
+				String tdrTransactionQuery = "SELECT * FROM Transaction_TL WHERE VOUCHER_ID = ?";
+				PreparedStatement preparedStatement1 = lcl_conn_dt.prepareStatement(tdrTransactionQuery);
+				preparedStatement1.setInt(1, TDRVouchersRS.getInt("VOUCHER_ID"));
+				ResultSet voucherTransactionRS = preparedStatement1.executeQuery();
+				while(voucherTransactionRS.next())
+				{
+					data[rowIndex][0] = rowIndex + 1;
+					if(voucherTransactionRS.getString("CUS_ACCOUNT_ID") != null)
+					{
+						String accountSearchQuery = "Select B.brn_cd||lpad(At.acc_type_cd,4,'0')||Cus.Customer_no ||lpad(acc.run_no,2,'0') || acc.Check_digit As AccountNo, acc.TITLE" +
+								" From Account_tl acc inner join Branch_tl B on acc.brn_ID= B.brn_ID inner join Customer Cus on acc.Customer_ID= Cus.Customer_ID  inner join Account_type At on acc.Acc_type_ID = At.Acc_type_ID" +
+								" WHERE acc.Account_ID = '" + voucherTransactionRS.getString("CUS_ACCOUNT_ID") + "'";
+						ResultSet AccountRS=null;
+						try 
+						{
+							java.sql.Statement lcl_stmt;
+							 lcl_stmt= lcl_conn_dt.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+							 AccountRS = lcl_stmt.executeQuery(accountSearchQuery);
+						} 
+						catch (SQLException e1) 
+						{
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						if (AccountRS.next())
+						{
+							data[rowIndex][1] = AccountRS.getString("AccountNo");
+							data[rowIndex][2] = AccountRS.getString("Title");
+						}
+					}
+					else if(voucherTransactionRS.getString("INTERNAL_ACCOUNT_ID") != null)
+					{
+						String accountSearchQuery = "Select IDEN || lpad(Main_HD,3,'0')|| lpad(Sub_HD_1,2,'0') || lpad(Sub_Hd_2,2,'0') || lpad(Run_No,4,'0') || Check_Digit As AccountNo, TITLE" +
+								" From internal_account_tl"+
+								" WHERE INTERNAL_ACCOUNT_ID = '" + voucherTransactionRS.getString("INTERNAL_ACCOUNT_ID") + "'";
+						ResultSet AccountRS=null;
+						try 
+						{
+							java.sql.Statement lcl_stmt;
+							 lcl_stmt= lcl_conn_dt.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+							 AccountRS = lcl_stmt.executeQuery(accountSearchQuery);
+						} 
+						catch (SQLException e1) 
+						{
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						if (AccountRS.next())
+						{
+							data[rowIndex][1] = AccountRS.getString("AccountNo");
+							data[rowIndex][2] = AccountRS.getString("Title");
+						}
+					}
+					data[rowIndex][3] = voucherTransactionRS.getFloat("Amount");
+					if(voucherTransactionRS.getInt("Trans_Type_Id")== 1)
+			       	 {
+			       		data[rowIndex][4]="Dr.";
+			       	 }
+			       	 else
+			       	 {
+			       		data[rowIndex][4]="Cr.";
+			       	 }
+			            rowIndex++;
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	
 	public Float GetTDRRate(int prodID)
 	{
 		Connection lcl_conn_dt = utility.db_conn();
@@ -670,6 +801,7 @@ public class TermDepositApplicationService {
 		}
 		return (float) 0.0;
 	}
+	
 	public Object[][] GetDealTransactions(String DealId)
 	{
 		String tdrDealTransQuery = "select td.deal_id, v.voucher_id, trn.transaction_id , v.voucher_date, trn.amount ,trn.trans_type_id, vt.voucher_desc "
@@ -677,8 +809,8 @@ public class TermDepositApplicationService {
 				"from tdr_deal td inner join tdr_application tdr on tdr.application_id = td.tdr_app_id inner join  account_no acc on " +
 				"acc.account_id = tdr.account_id inner join tdr_deal_voucher tdv on td.Deal_ID= tdv.deal_id inner join voucher v on " +
 				"tdv.voucher_id = v.voucher_id inner join transaction_tl trn on trn.voucher_id=v.voucher_id inner join voucher_type vt " +
-				"on v.voucher_type_id = vt.voucher_type_id  inner join branch_tl b on  b.brn_id = td.brn_ID where  v.voucher_type_id = 2 and " +
-				"td.deal_id = '"+DealId.substring(0,6)+"' and b.brn_cd= '"+Session.GetBranchCode()+"' order by v.voucher_id,trn.transaction_id ";
+				"on v.voucher_type_id = vt.voucher_type_id  inner join branch_tl b on  b.brn_id = td.brn_ID where  v.voucher_type_id = 4 and " +
+				"td.deal_id = '"+DealId.substring(0,6)+"' and b.brn_cd= '"+Session.GetBranchCode()+"' and trn.trans_type_id = 1 order by v.voucher_id,trn.transaction_id ";
 		Connection lcl_conn_dt = utility.db_conn();
 		ResultSet tdrDealTrans=null;
 		java.sql.Statement lcl_stmt;
@@ -717,6 +849,7 @@ public class TermDepositApplicationService {
 		}
 		return data;
 	}
+	
 	public Object[] getSpecialRates(TermDepositApplicationDTO TDADTO)
 	{
 		String getSpecialRatesQuery="select tenure,tdr_rate from tdr_product where tenure < "
@@ -773,14 +906,14 @@ public class TermDepositApplicationService {
 		    e.printStackTrace();
 		}
 		//if actual profit < profitpaid than princiapl_fund =princiapl_fund - profitdiff 
-		String PrincipalFundVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_cd from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Principal') ,? ))";
+		String PrincipalFundVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_id from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Principal') ,? ))";
 		String PrincipalFundDealVoucher="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
 		String PrincipalFundTransactionQuery="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
 		String updateCustAccountQuery= "Update account_tl set balance=balance+ ?  where account_id =? ";
 		String updateTdrAccountQuery= "Update account_tl set balance=balance- ?  where account_id =?";
 		
 		//if actual profit >= profitpaid 
-		String ProfitFundVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_cd from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Profit') ,? ))";
+		String ProfitFundVoucher = "Select voucher_id from Final Table (insert into Voucher (brn_id,voucher_type_id,voucher_date) values ((select brn_id from Branch_tl where brn_cd= ?), (Select voucher_type_Id from voucher_type where voucher_desc = 'TDR Premature Profit') ,? ))";
 		String ProfitFundDealVoucher="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
 		//Query to be maid 
 		//String InternalExpenseAccount="select Internal_Account_ID from internal_account where TITLE = 'Expense Account'";
@@ -800,7 +933,7 @@ public class TermDepositApplicationService {
 		String TaxUpdateTaxAccount="Update internal_account_tl set balance=balance+ ?  where internal_account_id =2";
 		
 		String TDRAppStatusUpdateQuery="update tdr_application set tdr_app_status=(Select ID from tdr_status where DESC='Premature Closed') where application_id = ?";
-		String TDRDealStatusUpdateQuery="update tdr_deal set deal_status =(Select ID from tdr_deal_status where DESC='Premature Closed') where application_id = ?";
+		String TDRDealStatusUpdateQuery="update tdr_deal set deal_status =(Select ID from tdr_deal_status where DESC='Premature Closed') where tdr_app_id = ?";
 		
 		Connection lcl_conn_dt = utility.db_conn();
 

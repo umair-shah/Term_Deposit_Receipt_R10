@@ -119,7 +119,7 @@ public class TermDepositSearch {
 				}
 				else{
 					String DealId= String.format(utility.lpad(maxDealNoField.getText().toString(), '0', 6))+Session.GetBranchCode()+dateField.getText().toString()+yearField.getText().toString();
-					TermDepositApplicationDTO TDADTO =TDRSS.GetTDRDealDetails(DealId);
+					TermDepositApplicationDTO TDADTO =TDRSS.GetTDRDealDetails(DealId,1);
 					if(TDADTO.GetApplicationDate() == Session.GetBranchDate() )
 		        	{
 						JOptionPane.showMessageDialog(frame, "Premature Encashment is not possible on same day","Invalid Operation",JOptionPane.ERROR_MESSAGE);
@@ -280,7 +280,7 @@ public class TermDepositSearch {
 		        if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
 					//JOptionPane.showMessageDialog(frame, "Amount is required!","row = "+table.getValueAt(row, 0).toString() ,JOptionPane.ERROR_MESSAGE);
 		        	String DealNo= table.getValueAt(row, 1).toString();
-		        	TermDepositApplicationDTO TDRAppDto = TDRSS.GetTDRDealDetails(DealNo);
+		        	TermDepositApplicationDTO TDRAppDto = TDRSS.GetTDRDealDetails(DealNo,3);
 		        	TermDepositApplication TDRApplication= new TermDepositApplication();
 		        	TDRApplication.PrematureEncashment(TDRAppDto);
 		        	
