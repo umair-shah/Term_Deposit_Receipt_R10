@@ -34,6 +34,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import javax.swing.border.TitledBorder;
+import javax.swing.UIManager;
 public class TermDepositApplication {
 	private JFrame frame;
 	private JPanel panel;
@@ -115,7 +117,7 @@ public class TermDepositApplication {
 		frame = new JFrame("Term Deposit Application");
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(662,656);
+		frame.setSize(675,656);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
@@ -283,12 +285,19 @@ public class TermDepositApplication {
 		tdrRateField.setBounds(468, 270, 89, 20);
 		panel.add(tdrRateField);
 		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(0, 128, 128));
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Account Details", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.setBounds(10, 11, 646, 146);
+		panel.add(panel_1);
+		
 		
 		
 		
 		ResultSet modeOfFundRs = tdrService.GetModeofFunds();
 		try 
 		{
+			modeOfFundComboBox.addItem(new ComboItem(0,"Select Mode"));
 			while(modeOfFundRs.next())
 			{
 				modeOfFundComboBox.addItem(new ComboItem(modeOfFundRs.getInt("ID"),modeOfFundRs.getString("Desc")));
@@ -303,6 +312,7 @@ public class TermDepositApplication {
 		ResultSet tdrProductRs = tdrService.GetTenure();
 		try 
 		{
+			tenureComboBox.addItem(new ComboItem(0,"Select Tenure"));
 			while(tdrProductRs.next())
 			{
 				tenureComboBox.addItem(new ComboItem(tdrProductRs.getInt("ID"),tdrProductRs.getString("Desc")));
@@ -317,6 +327,7 @@ public class TermDepositApplication {
 		ResultSet actionAtMaturityRs = tdrService.GetActionatMaturity();
 		try 
 		{
+			actionAtMaturityComboBox.addItem(new ComboItem(0,"Select Action"));
 			while(actionAtMaturityRs.next())
 			{
 				actionAtMaturityComboBox.addItem(new ComboItem(actionAtMaturityRs.getInt("ID"),actionAtMaturityRs.getString("Desc")));
@@ -406,11 +417,14 @@ public class TermDepositApplication {
 			public void actionPerformed(ActionEvent e)
 			{
 				ComboItem selectedTenure= (ComboItem) tenureComboBox.getSelectedItem();
-				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString());
+				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString() + " %");
 			}
 		});
 		updateButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent updatebtnClicked) {
+			ComboItem tenureComboItem=(ComboItem) tenureComboBox.getSelectedItem();
+			ComboItem actionComboItem=(ComboItem) actionAtMaturityComboBox.getSelectedItem();
+			ComboItem modeOfFundComboItem=(ComboItem) modeOfFundComboBox.getSelectedItem();
 			if(totalAmountField.getText().isEmpty())
 			{
 				JOptionPane.showMessageDialog(frame, "Amount is required!","Enter Amount",JOptionPane.ERROR_MESSAGE);
@@ -425,6 +439,20 @@ public class TermDepositApplication {
 			{
 				JOptionPane.showMessageDialog(frame, "Credit Principal Account is reuired!","Enter Credit Principal Account",JOptionPane.ERROR_MESSAGE);
 			}
+			
+			else if(modeOfFundComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Mode of Fund not Selected","Select Mode of Fund",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(tenureComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Tenure not Selected","Select Tenure",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(actionComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Action at Maturity not Selected","Select Action at Maturity",JOptionPane.ERROR_MESSAGE);
+			}
+			
 			else if(Float.parseFloat(totalAmountField.getText()) > accdto.GetBalance() )
 			{
 				JOptionPane.showMessageDialog(frame, "Insufficient amount in account","Insufficient Amount",JOptionPane.ERROR_MESSAGE);
@@ -523,12 +551,15 @@ public class TermDepositApplication {
 			public void actionPerformed(ActionEvent e)
 			{
 				ComboItem selectedTenure= (ComboItem) tenureComboBox.getSelectedItem();
-				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString());
+				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString() + " %");
 			}
 		});
 		tdrRateField.setEditable(false);
 		saveButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent saveButtonClicked) {
+			ComboItem tenureComboItem=(ComboItem) tenureComboBox.getSelectedItem();
+			ComboItem actionComboItem=(ComboItem) actionAtMaturityComboBox.getSelectedItem();
+			ComboItem modeOfFundComboItem=(ComboItem) modeOfFundComboBox.getSelectedItem();
 			if(totalAmountField.getText().isEmpty())
 			{
 				JOptionPane.showMessageDialog(frame, "Amount is required!","Enter Amount",JOptionPane.ERROR_MESSAGE);
@@ -543,6 +574,22 @@ public class TermDepositApplication {
 			{
 				JOptionPane.showMessageDialog(frame, "Credit Principal Account is reuired!","Enter Credit Principal Account",JOptionPane.ERROR_MESSAGE);
 			}
+			
+			else if(modeOfFundComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Mode of Fund not Selected","Select Mode of Fund",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(tenureComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Tenure not Selected","Select Tenure",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(actionComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Action at Maturity not Selected","Select Action at Maturity",JOptionPane.ERROR_MESSAGE);
+			}
+
+			
+			
 			else if(Float.parseFloat(totalAmountField.getText()) > accountDTO.GetBalance())
 			{
 				JOptionPane.showMessageDialog(frame, "Insufficient amount in account","Insufficient Amount",JOptionPane.ERROR_MESSAGE);
@@ -662,14 +709,14 @@ public class TermDepositApplication {
 
 		authorizeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent authorizebtnClicked) {
-				int result = tdrService.AuthorizeTDRApplication(TDRAppDto);
-				if(result == 1)
+				String dealNo = tdrService.AuthorizeTDRApplication(TDRAppDto);
+				if(dealNo != null)
 				{
-					JOptionPane.showMessageDialog(frame, "Application Authorized Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Application Authorized Successfully \n Application ID = "+TDRAppDto.GetApplicationNo()+"\n Deal No = "+dealNo,"Successful",JOptionPane.INFORMATION_MESSAGE);
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(frame, "Application Authorized UnnnnnnnSuccessfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Application Authorized UnSuccessfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
 				}
 				frame.dispose();
 			}
@@ -754,9 +801,9 @@ public class TermDepositApplication {
 			public void actionPerformed(ActionEvent authorizebtnClicked) {
 				
 				
-				int result = tdrService.OpenTDRApplication(TDRAppDto);
+				final String dealNo = tdrService.OpenTDRApplication(TDRAppDto);
 				
-				if(result == 1)
+				if(dealNo != null)
 				{
 					final JFrame frame = new JFrame("TDR Opening Voucher");
 					frame.setResizable(false);
@@ -770,7 +817,7 @@ public class TermDepositApplication {
 					frame.getContentPane().add(panel, BorderLayout.CENTER);
 					panel.setLayout(null);
 
-					String[] columnNames = {"S.No", "Account No","Amount", "Dr. / Cr."};
+					String[] columnNames = {"S.No", "Account No", "Account Title", "Debit", "Credit"};
 				
 
 					Object[][] data = tdrService.GetTellerTDROpeningVoucher(TDRAppDto);
@@ -790,15 +837,15 @@ public class TermDepositApplication {
 					//termDepositTable.setBounds(142, 196, 202, -91);
 					panel.add(jScrollPane);
 					jScrollPane.setSize(771,173);
-					JButton btnBack = new JButton("Back");
-					btnBack.addActionListener(new ActionListener() {
+					JButton btnOk = new JButton("Ok");
+					btnOk.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent arg0) {
 							frame.dispose();
-							JOptionPane.showMessageDialog(frame, "TDR Opened Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(frame, "TDR Opened Successfully \n Application ID = "+TDRAppDto.GetApplicationNo() + "\n Deal Number = "+dealNo,"Successful",JOptionPane.INFORMATION_MESSAGE);
 						}
 					});
-					btnBack.setBounds(690, 268, 89, 23);
-					panel.add(btnBack);
+					btnOk.setBounds(690, 268, 89, 23);
+					panel.add(btnOk);
 					jScrollPane.setVisible(true);
 					panel.repaint();
 				}
@@ -893,7 +940,7 @@ public class TermDepositApplication {
 		lblPayableAmount.setBounds(28, 678, 96, 14);
 		panel.add(lblPayableAmount);
 		
-		MaxLengthAmountField payableAmountField = new MaxLengthAmountField(16);
+		JTextField payableAmountField = new JTextField();
 		payableAmountField.setColumns(10);
 		payableAmountField.setBounds(194, 675, 191, 20);
 		panel.add(payableAmountField);
@@ -904,7 +951,7 @@ public class TermDepositApplication {
 		float totalProfitPaid=0;
 		
 		for (int row = 0; row < data.length; row++) {
-			if(data[row][8].toString() == TDRAppDto.GetAccountNo() && Integer.parseInt(data[row][5].toString()) == 1  )
+			if(data[row][8].toString().equals(TDRAppDto.GetAccountNo())  && Integer.parseInt(data[row][5].toString()) == 1  )
 			{
 				totalProfitPaid+= Float.parseFloat(data[row][4].toString());
 			}
@@ -950,10 +997,10 @@ public class TermDepositApplication {
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					boolean updatepreencashstatus= tdrService.UpdateTDRPreEncashment(TDRAppDto);
-					if(updatepreencashstatus)
+					String dealno= tdrService.UpdateTDRPreEncashment(TDRAppDto);
+					if(dealno != null)
 					{
-						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo() + "\n Deal No = "+dealno,"Successful",JOptionPane.INFORMATION_MESSAGE);
 					}
 					else{
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction UnSuccessful \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
@@ -974,8 +1021,8 @@ public class TermDepositApplication {
 				public void actionPerformed(ActionEvent e)
 				{
 					
-					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto,paidprofit,actualProfit);
-					if(updatepreencashstatus)
+					String dealno= tdrService.PrematureEncashmentTransaction(TDRAppDto,paidprofit,actualProfit);
+					if(dealno != null)
 					{
 						final JFrame frame = new JFrame("TDR PreEncashment Voucher");
 						frame.setResizable(false);
@@ -989,7 +1036,7 @@ public class TermDepositApplication {
 						frame.getContentPane().add(panel, BorderLayout.CENTER);
 						panel.setLayout(null);
 
-						String[] columnNames = {"S.No", "Account No", "Account Title", "Amount", "Dr. / Cr."};
+						String[] columnNames = {"S.No", "Account No", "Account Title", "Debit", "Credit"};
 					
 
 						Object[][] data = tdrService.GetTDRPreMatureVoucher(TDRAppDto);
@@ -1009,13 +1056,17 @@ public class TermDepositApplication {
 						//termDepositTable.setBounds(142, 196, 202, -91);
 						panel.add(jScrollPane);
 						jScrollPane.setSize(771,173);
-						JButton btnBack = new JButton("Back");
-						btnBack.addActionListener(new ActionListener() {
+						JButton btnOk = new JButton("Ok");
+						btnOk.setBounds(690, 268, 89, 23);
+						panel.add(btnOk);
+						jScrollPane.setVisible(true);
+						panel.repaint();
+						btnOk.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent arg0) {
 								frame.dispose();
 							}
 							});
-						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo() + "\n Deal No = "+dealno,"Successful",JOptionPane.INFORMATION_MESSAGE);
 					}
 					else{
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction UnSuccessful \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);

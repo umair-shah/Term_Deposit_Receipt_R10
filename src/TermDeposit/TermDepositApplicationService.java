@@ -182,7 +182,7 @@ public class TermDepositApplicationService {
 	public String CreateDeal(TermDepositApplicationDTO tdaDTO,Connection lcl_conn_dt)
 	{
 		
-		String query = "Select Deal_id From final Table (INSERT INTO TDR_DEAL(Deal_Date, Deal_Status, TDR_APP_ID, TDR_ACCOUNT_ID, BRN_ID)" +
+		String query = "SELECT lpad(deal_id,6,'0') As deal_id,Day(deal_date) AS day, year(deal_date) as Year From final Table (INSERT INTO TDR_DEAL(Deal_Date, Deal_Status, TDR_APP_ID, TDR_ACCOUNT_ID, BRN_ID)" +
 				"VALUES (?, ?, ?, ?, (SELECT BRN_ID FROM BRANCH_TL WHERE Brn_Cd = ?)))";
 		String updateAppStatusQuery="update tdr_application set tdr_app_status = 2 where application_id = ?"; 
 		String dealNo=null;
@@ -201,7 +201,7 @@ public class TermDepositApplicationService {
 			ResultSet dealrs=preparedStatement.executeQuery();
 			if(dealrs.next() && appstatus > 0)
 			{
-				dealNo=dealrs.getString(1);
+				dealNo=dealrs.getString("deal_id")+"/"+Session.GetBranchCode()+"/"+dealrs.getString("day")+"/"+dealrs.getString("year");
 			}
 		} 
 		catch (SQLException e) 
@@ -373,7 +373,7 @@ public class TermDepositApplicationService {
         return -1;
 	}
 	
-	public int AuthorizeTDRApplication(TermDepositApplicationDTO TDADTO)
+	public String AuthorizeTDRApplication(TermDepositApplicationDTO TDADTO)
 	{
 		String todayDate = Session.GetBranchDate();
 		java.sql.Date tdate=null;
@@ -387,9 +387,12 @@ public class TermDepositApplicationService {
 		String TransactionQuery="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
 		String updateCustAccountQuery= "Update account_tl set balance=balance- ? , block_amnt= block_amnt - ? where account_id =? ";
 		String updateTdrAccountQuery= "Update account_tl set balance=balance+ ?  where account_id =?";
-		String TDRAppAuthorizeQuery="update tdr_application set tdr_app_status=3 where application_id = ?";
+		String TDRAppAuthorizeQuery="update tdr_application set tdr_app_status=3, approved_by = ? where application_id = ?";
+		String TDRDealAuthorizeQuery="update tdr_deal set deal_status=21 where tdr_app_id = ?";
+		String GetTDRDealNoQuery = "SELECT lpad(deal_id,6,'0') As deal_id,Day(deal_date) AS day, year(deal_date) as Year FROM TDR_DEAL where tdr_app_id = ?";
 		
 		Connection lcl_conn_dt = utility.db_conn();
+		String dealno =null;
 		int debitstatus=0;
 		int crdstatus=0;
 		long voucherID= 0;
@@ -397,6 +400,7 @@ public class TermDepositApplicationService {
 		int updateappstatus=0;
 		int updateCustAccountStatus=0;
 		int updateTdrAccountstatus=0;
+		int updatedealstatus =0;
 		try 
 		{
 			lcl_conn_dt.setAutoCommit(false);
@@ -448,17 +452,32 @@ public class TermDepositApplicationService {
 				if(debitstatus >0 && crdstatus >0 && updateCustAccountStatus> 0 && updateTdrAccountstatus >0 )
 				{
 					PreparedStatement preparedStatement5 = lcl_conn_dt.prepareStatement(TDRAppAuthorizeQuery);
-					preparedStatement5.setLong(1, Long.parseLong( TDADTO.GetApplicationNo().substring(0, 5)));
+					preparedStatement5.setString(1, Session.GetUserName());
+					preparedStatement5.setLong(2, Long.parseLong( TDADTO.GetApplicationNo().substring(0, 5)));
 					updateappstatus=preparedStatement5.executeUpdate();		
-					if(updateappstatus > 0)
+					
+					PreparedStatement preparedStatement6 = lcl_conn_dt.prepareStatement(TDRDealAuthorizeQuery);
+					preparedStatement6.setLong(1, Long.parseLong( TDADTO.GetApplicationNo().substring(0, 5)));
+					updatedealstatus=preparedStatement6.executeUpdate();
+					if(updateappstatus > 0 && updatedealstatus > 0)
 					{
 						lcl_conn_dt.commit();
-						return 1;
+						PreparedStatement preparedStatement7 = lcl_conn_dt.prepareStatement(GetTDRDealNoQuery);
+						preparedStatement7.setLong(1, Long.parseLong( TDADTO.GetApplicationNo().substring(0, 5)));
+						ResultSet tdrDealRS = preparedStatement7.executeQuery();
+						
+						if(tdrDealRS.next())
+						{
+							dealno=tdrDealRS.getString("deal_id")+"/"+Session.GetBranchCode()+"/"+tdrDealRS.getString("day")+"/"+tdrDealRS.getString("year");
+							return dealno;
+						}
 					}
-				}
-				
+					
+				}			
 			}
 			lcl_conn_dt.rollback();
+			
+			
 		} 
 		catch (SQLException e) 
 		{
@@ -472,14 +491,14 @@ public class TermDepositApplicationService {
 			e.printStackTrace();
 		}
 		
-		return 0;
+		return null;
 	}
 //	
 	public String RejectTDRApplication(TermDepositApplicationDTO TDADTO)
 	{
 		Connection lcl_conn_dt = utility.db_conn();
 		String updateCustAccountQuery= "Update account_tl set  block_amnt= block_amnt + ? where account_id =? ";
-		String TDRAppAuthorizeQuery="update tdr_application set tdr_app_status=4 where application_id = ?";
+		String TDRAppAuthorizeQuery="update tdr_application set tdr_app_status=4, APPROVED_BY = ? where application_id = ?";
 		String TDRDealStatusQuery="SELECT lpad(deal_id,6,'0') As deal_id,Day(deal_date) AS day, year(deal_date) as Year  FROM FINAL TABLE "
 				+ "(update tdr_deal set deal_Status = 2 where tdr_app_id = ?)";
 		int updateCustAccountStatus=0;
@@ -496,7 +515,8 @@ public class TermDepositApplicationService {
 			updateCustAccountStatus=preparedStatement.executeUpdate();
 			
 			PreparedStatement preparedStatement1 = lcl_conn_dt.prepareStatement(TDRAppAuthorizeQuery);
-			preparedStatement1.setLong(1, Long.parseLong( TDADTO.GetAccountID()));
+			preparedStatement1.setString(1, Session.GetUserName());
+			preparedStatement1.setLong(2, Long.parseLong( TDADTO.GetApplicationNo().substring(0, 5)));
 			TDRAppAuthorizeStatus=preparedStatement1.executeUpdate();
 			
 			PreparedStatement preparedStatement2 = lcl_conn_dt.prepareStatement(TDRDealStatusQuery);
@@ -550,7 +570,7 @@ public class TermDepositApplicationService {
 			return 0;
 		}
 	}
-	public int OpenTDRApplication(TermDepositApplicationDTO TDADTO)
+	public String OpenTDRApplication(TermDepositApplicationDTO TDADTO)
 	{
 		Connection lcl_conn_dt = utility.db_conn();
 		String dealId=null;
@@ -584,7 +604,6 @@ public class TermDepositApplicationService {
 			}
 			else{
 				lcl_conn_dt.rollback();
-				return 0;
 			}
 			
 		} catch (SQLException e1) {
@@ -593,13 +612,13 @@ public class TermDepositApplicationService {
 		}
 		
 		
-		return 1;
+		return dealId;
 	}
 	
 	public  Object[][] GetTellerTDROpeningVoucher(TermDepositApplicationDTO TDADTO)
 	{
 		String accountSearchQuery = "Select B.brn_cd||lpad(At.acc_type_cd,4,'0')||Cus.Customer_no ||lpad(acc.run_no,2,'0') || acc.Check_digit As AccountNo, " +
-				"At.acc_type_cd from Account_tl acc inner join Branch_tl B on acc.brn_ID= B.brn_ID inner join Customer Cus on acc.Customer_ID= Cus.Customer_ID  " +
+				"At.acc_type_cd, acc.TITLE from Account_tl acc inner join Branch_tl B on acc.brn_ID= B.brn_ID inner join Customer Cus on acc.Customer_ID= Cus.Customer_ID  " +
 				"inner join Account_type At on acc.Acc_type_ID = At.Acc_type_ID " +
 				" WHERE acc.Account_ID in ('"+TDADTO.GetAccountID()+"','"+TDADTO.GetTDRAccountID()+"')";
 		Connection lcl_conn_dt = utility.db_conn();
@@ -612,19 +631,22 @@ public class TermDepositApplicationService {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Object[][] data = new Object[2][4];
+		Object[][] data = new Object[2][5];
 		int rowIndex=0;
 		try{
 		while (TDRAccounts.next()) {   
        	 data[rowIndex][0] = rowIndex+1;
        	 data[rowIndex][1] = TDRAccounts.getString("AccountNo");
-       	 data[rowIndex][2] = TDADTO.GetTDRAmount();
+       	 data[rowIndex][2] = TDRAccounts.getString("TITLE");
+//       	 data[rowIndex][3] = TDADTO.GetTDRAmount();
        	 if(TDRAccounts.getInt("acc_type_cd")==10)
        	 {
-       		data[rowIndex][3]="Cr.";
+       		data[rowIndex][4] = TDADTO.GetTDRAmount();
+       		//data[rowIndex][4]="Cr.";
        	 }
        	 else{
-       		data[rowIndex][3]="Dr.";
+       		data[rowIndex][3] = TDADTO.GetTDRAmount();
+//       		data[rowIndex][4]="Dr.";
        	 }
             rowIndex++;
         }
@@ -752,14 +774,14 @@ public class TermDepositApplicationService {
 							data[rowIndex][2] = AccountRS.getString("Title");
 						}
 					}
-					data[rowIndex][3] = voucherTransactionRS.getFloat("Amount");
+					//data[rowIndex][3] = voucherTransactionRS.getFloat("Amount");
 					if(voucherTransactionRS.getInt("Trans_Type_Id")== 1)
 			       	 {
-			       		data[rowIndex][4]="Dr.";
+			       		data[rowIndex][3]=String.format("%.2f",voucherTransactionRS.getFloat("Amount"));
 			       	 }
 			       	 else
 			       	 {
-			       		data[rowIndex][4]="Cr.";
+			       		data[rowIndex][4]=String.format("%.2f",voucherTransactionRS.getFloat("Amount"));
 			       	 }
 			            rowIndex++;
 				}
@@ -823,6 +845,7 @@ public class TermDepositApplicationService {
 		}
 		Object[][] data=null;
 		try{
+			tdrDealTrans.last();
 			int rowCount = tdrDealTrans.getRow();
 			tdrDealTrans.beforeFirst();
 
@@ -840,7 +863,7 @@ public class TermDepositApplicationService {
 			data[rowIndex][6]=tdrDealTrans.getString("voucher_desc");
 			data[rowIndex][7]=tdrDealTrans.getInt("voucher_type_ID");
 			data[rowIndex][8]=tdrDealTrans.getString("accountno");
-			data[rowIndex][9]=tdrDealTrans.getInt("Account_Type");
+			data[rowIndex][9]=tdrDealTrans.getString("Account_Type");
             rowIndex++;
         }
 		}catch(Exception e)
@@ -896,7 +919,7 @@ public class TermDepositApplicationService {
 //		return status;
 //	}
 
-	public Boolean PrematureEncashmentTransaction(TermDepositApplicationDTO TDADTO,float profitPaid, float actualProfit)
+	public String PrematureEncashmentTransaction(TermDepositApplicationDTO TDADTO,float profitPaid, float actualProfit)
 	{
 		String todayDate = Session.GetBranchDate();
 		java.sql.Date tdate=null;
@@ -935,8 +958,12 @@ public class TermDepositApplicationService {
 		String TDRAppStatusUpdateQuery="update tdr_application set tdr_app_status=(Select ID from tdr_status where DESC='Premature Closed') where application_id = ?";
 		String TDRDealStatusUpdateQuery="update tdr_deal set deal_status =(Select ID from tdr_deal_status where DESC='Premature Closed') where tdr_app_id = ?";
 		
+		String GetTDRDealNoQuery = "SELECT lpad(deal_id,6,'0') As deal_id,Day(deal_date) AS day, year(deal_date) as Year FROM TDR_DEAL where tdr_app_id = ?";
+		
 		Connection lcl_conn_dt = utility.db_conn();
-
+		
+		String dealno = null;
+		ResultSet tdrDealNoRS = null;
 		try 
 		{
 			lcl_conn_dt.setAutoCommit(false);
@@ -1057,8 +1084,18 @@ public class TermDepositApplicationService {
 			preparedStatement16.setString(1, TDADTO.GetApplicationNo().substring(0,5));
 			preparedStatement16.executeUpdate();
 			
+			
+			PreparedStatement preparedStatement17 = lcl_conn_dt.prepareStatement(GetTDRDealNoQuery);
+			preparedStatement17.setString(1, TDADTO.GetApplicationNo().substring(0,5));
+			tdrDealNoRS = preparedStatement17.executeQuery();
+			
+			if(tdrDealNoRS.next())
+			{
+				dealno = tdrDealNoRS.getString("deal_id")+"/"+Session.GetBranchCode()+"/"+tdrDealNoRS.getString("day")+"/"+tdrDealNoRS.getString("year");
+			}
+			
 			lcl_conn_dt.commit();	
-			return true;
+			return dealno;
 		}
 		catch (Exception e) {
 		    e.printStackTrace();
@@ -1075,32 +1112,39 @@ public class TermDepositApplicationService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return false;
+		return null;
 	}
-	public Boolean UpdateTDRPreEncashment(TermDepositApplicationDTO TDADTO) 
+	public String UpdateTDRPreEncashment(TermDepositApplicationDTO TDADTO) 
 	{
 		Connection lcl_conn_dt= utility.db_conn();
 		String updateDealQuery ="update tdr_deal set deal_status = 3 where TDR_app_id='"+TDADTO.GetApplicationNo().substring(0,5)+"'";
 		String  updateApplicationQuery ="update tdr_application set tdr_app_status = 6 where application_id='"+TDADTO.GetApplicationNo().substring(0,5)+"'";
+		String GetTDRDealNoQuery = "SELECT lpad(deal_id,6,'0') As deal_id,Day(deal_date) AS day, year(deal_date) as Year FROM TDR_DEAL where tdr_app_id = '"+TDADTO.GetApplicationNo().substring(0,5)+"'";
 		
 		java.sql.Statement lcl_stmt; 
 		int tdrPreencashStatus=0;
 		int tdrapptatus=0;
+		String dealno = null;
+		ResultSet tdrDealNoRS = null;
 		try {
 			lcl_stmt= lcl_conn_dt.createStatement();
 			tdrPreencashStatus = lcl_stmt.executeUpdate(updateDealQuery);
 			tdrapptatus=lcl_stmt.executeUpdate(updateApplicationQuery);
-			
+			tdrDealNoRS = lcl_stmt.executeQuery(GetTDRDealNoQuery);
+			if(tdrDealNoRS.next())
+			{
+				dealno = tdrDealNoRS.getString("deal_id")+"/"+Session.GetBranchCode()+"/"+tdrDealNoRS.getString("day")+"/"+tdrDealNoRS.getString("year");
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if(tdrPreencashStatus > 0 && tdrapptatus > 0  )
 		{
-			return true;
+			return dealno;
 		}
 		else{
-			return false;
+			return null;
 		}
 	}
 	/**

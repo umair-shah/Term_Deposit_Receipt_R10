@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import Utilities.MaxLengthNumericField;
 import Utilities.MaxLengthPwdField;
 import Utilities.MaxLengthTextField;
+import Utilities.utility;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -108,7 +109,7 @@ public class LoginUser {
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent Login) {
-				String branchCode = branchCodeField.getText().toString();
+				String branchCode = utility.lpad(branchCodeField.getText().toString(), '0', 4);
 				String userId = userIDField.getText().toString();
 				String password = passwordField.getText().toString();
 				LoginUserService loginUserService = new LoginUserService();

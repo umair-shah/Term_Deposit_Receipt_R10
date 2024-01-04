@@ -87,7 +87,13 @@ public class TermDepositEOD {
         Calendar cal = Calendar.getInstance();
         
         String startDateString = PrevDate;
-        String endDateString = SetDate;
+        String endDateString =null;
+		try {
+			endDateString = utility.addDayToDate(SetDate, -1);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         Date endDate = null;
         Date startDate = null;
 		try {
@@ -106,8 +112,8 @@ public class TermDepositEOD {
             startDate = cal.getTime();
             
             String GetTDRData="select * from tdr_application tdr inner join tdr_deal td on td.tdr_app_id= tdr.application_id inner join " +
-            		"account_no an on an.account_id = tdr.account_id inner join tdr_product tp on tdr.product_id = tp.id where tdr.tdr_app_status= 3 " +
-            		"and tdr.Maturity_date = '"+dateFormat.format(startDate)+"' or tdr.last_payout_date='"+dateFormat.format(startDate)+"'";
+            		"account_no an on an.account_id = tdr.account_id inner join tdr_product tp on tdr.product_id = tp.id inner join Branch_tl brn on brn.brn_id = td.brn_id where tdr.tdr_app_status= 3 " +
+            		"and brn.brn_cd = '"+Session.GetBranchCode()+"' and tdr.Maturity_date = '"+dateFormat.format(startDate)+"' or tdr.last_payout_date='"+dateFormat.format(startDate)+"'";
             
             Connection lcl_conn_dt= utility.db_conn();
     		java.sql.Statement lcl_stmt;
@@ -118,19 +124,25 @@ public class TermDepositEOD {
     		try{
         		lcl_stmt= lcl_conn_dt.createStatement();
         		TDRs = lcl_stmt.executeQuery(GetTDRData);
-        		int action= TDRs.getInt("Maturity_Action");
+        		int action= 0;
         		while(TDRs.next())
         		{
+        			action= TDRs.getInt("Maturity_Action");
+        			if( TDRs.getString("Last_payout_date").equals(dateFormat.format(startDate)) && action != 3)
+        			{
+        				payoutTransaction(TDRs,dateFormat.format(startDate));
+        			}
         			if(TDRs.getString("Maturity_date").equals(dateFormat.format(startDate)))
         			{
         				
         				if(action == 1)
         				{
         					TDRSS = new TermDepositApplicationService();
-        					CreditPrincipalOnMaturityStatus= CreditPrincipalOnMaturity(TDRs);
+        					CreditPrincipalOnMaturityStatus= CreditPrincipalOnMaturity(TDRs, dateFormat.format(startDate));
         				}
         				else if(action == 2)
         				{
+        					TDRSS = new TermDepositApplicationService();
         					rolloverPrincipalonMaturityStatus = RolloverPrincipalOnMaturity(TDRs,dateFormat.format(startDate));
         				}
         				else if(action == 3)
@@ -139,19 +151,12 @@ public class TermDepositEOD {
             				RolloverPrincipalandProfitStatus=RolloverPrincipalandProfit(TDRs,dateFormat.format(startDate));
         				}
         			}
-        			if( TDRs.getString("Last_payout_date").equals(dateFormat.format(startDate)) && action != 3)
-        			{
-        				payoutTransaction(TDRs,dateFormat.format(startDate));
-        			}
-        			if( utility.addMonthToDate(TDRs.getString("Last_payout_date"), 1).equals(dateFormat.format(startDate)) && TDRs.getString("maturity_date").equals(dateFormat.format(startDate)))
-        			{
-        				
-        			}
+        			
         		}
     		}
     		catch(Exception E )
     		{
-    			
+    			E.printStackTrace();
     		}
 	}
 }
@@ -248,6 +253,7 @@ public class TermDepositEOD {
 	}
 	public boolean RolloverPrincipalandProfit(ResultSet TDRs, String StartDate) throws SQLException
 	{
+		
 		Connection lcl_conn_dt = utility.db_conn();
 		lcl_conn_dt.setAutoCommit(false);
 		lcl_conn_dt.setTransactionIsolation(lcl_conn_dt.TRANSACTION_READ_COMMITTED);
@@ -323,12 +329,20 @@ public class TermDepositEOD {
 		preparedStatement14.setString(2,TDRs.getString("tdr_account_id"));
 		preparedStatement14.executeUpdate();
 		
+		PreparedStatement preparedStatement15 = lcl_conn_dt.prepareStatement(TDRAppStatusUpdateQuery);
+		preparedStatement15.setLong(1,TDRs.getLong("Application_id"));
+		int updateappstatus=preparedStatement15.executeUpdate();		
+		
+		PreparedStatement preparedStatement16 = lcl_conn_dt.prepareStatement(TDRDealStatusUpdateQuery);
+		preparedStatement16.setLong(1,TDRs.getLong("Application_id") );
+		int updateDealStatus=preparedStatement16.executeUpdate();
+		
 		
 		
 		String RollOverTDRApp = "SELECT lpad(APPLICATION_ID,5,'0'),Year(Application_date) FROM FINAL TABLE " +
 				"(INSERT INTO TDR_Application (Holder_name,Amount,Input_by,Maturity_date,Application_date,TDR_Request_DOC, " +
 				"TDR_App_status,Product_Id,Maturity_Action,Mode_of_fund,Principal_Fund_Crd_Acc_ID,Prof_Nom_Acc_ID,TDR_Request_Doc_Name, " +
-				"Account_ID,last_payout_date ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?))";
+				"Account_ID,last_payout_date, APPROVED_BY ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?))";
 		
 		
 		String applicationDate= null;
@@ -338,7 +352,7 @@ public class TermDepositEOD {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Date mdate = utility.getMaturityDate(applicationDate, TDRs.getInt("Product_Id"));
+		Date mdate = utility.getMaturityDate(StartDate, TDRs.getInt("Product_Id"));
 		String applicationSno=null;
 		String year =null;
 		String applicationNo =null;
@@ -364,6 +378,7 @@ public class TermDepositEOD {
         	preparedStatement1.setString(13,TDRs.getString("TDR_Request_DOC_Name"));
         	preparedStatement1.setLong(14,TDRs.getLong("Account_ID"));
         	preparedStatement1.setString(15,utility.addMonthToDate(StartDate, 1));
+        	preparedStatement1.setString(16,TDRs.getString("Approved_By"));
             ResultSet rs = preparedStatement1.executeQuery();
             if(rs.next())
      		{
@@ -408,12 +423,24 @@ public class TermDepositEOD {
 	}
 	public boolean RolloverPrincipalOnMaturity (ResultSet TDRs, String StartDate) throws SQLException 
 	{	
+		String TDRAppClosedQuery="update tdr_application set tdr_app_status=5 where application_id = ?";
+		String TDRDealClosedQuery="update tdr_deal set deal_status = 5 where tdr_app_id = ?";	
+		
 		String RollOverTDRApp = "SELECT lpad(APPLICATION_ID,5,'0'),Year(Application_date) FROM FINAL TABLE " +
 				"(INSERT INTO TDR_Application (Holder_name,Amount,Input_by,Maturity_date,Application_date,TDR_Request_DOC, " +
 				"TDR_App_status,Product_Id,Maturity_Action,Mode_of_fund,Principal_Fund_Crd_Acc_ID,Prof_Nom_Acc_ID,TDR_Request_Doc_Name, " +
-				"Account_ID,last_payout_date ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,?))";
+				"Account_ID,last_payout_date, APPROVED_BY ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,?))";
+		
 		
 		Connection lcl_conn_dt = utility.db_conn();
+		PreparedStatement preparedStatement3 = lcl_conn_dt.prepareStatement(TDRAppClosedQuery);
+		preparedStatement3.setLong(1,TDRs.getLong("Application_id"));
+		int updateappstatus=preparedStatement3.executeUpdate();		
+		
+		PreparedStatement preparedStatement4 = lcl_conn_dt.prepareStatement(TDRDealClosedQuery);
+		preparedStatement4.setLong(1,TDRs.getLong("Application_id") );
+		int updateDealStatus=preparedStatement4.executeUpdate();	
+		
 		String applicationDate= null;
 		try {
 			applicationDate = utility.addDayToDate(StartDate,1);
@@ -421,7 +448,7 @@ public class TermDepositEOD {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Date mdate = utility.getMaturityDate(applicationDate, TDRs.getInt("Product_Id"));
+		Date mdate = utility.getMaturityDate(StartDate, TDRs.getInt("Product_Id"));
 		String applicationSno=null;
 		String year =null;
 		String applicationNo =null;
@@ -447,7 +474,9 @@ public class TermDepositEOD {
         	preparedStatement1.setString(13,TDRs.getString("TDR_Request_DOC_Name"));
         	preparedStatement1.setLong(14,TDRs.getLong("Account_ID"));
         	preparedStatement1.setString(15,utility.addMonthToDate(StartDate, 1));
+        	preparedStatement1.setString(16,TDRs.getString("Approved_By"));
             ResultSet rs = preparedStatement1.executeQuery();
+            
         
             if(rs.next())
      		{
@@ -468,7 +497,7 @@ public class TermDepositEOD {
             	preparedStatement2.setInt(3,Integer.parseInt(applicationNo.substring(0,5)));
     			preparedStatement2.setInt(4,Integer.parseInt(TDRSS.GetTDRAccountID(TDRs.getString("accountno"))));
     			preparedStatement2.setString(5,Session.GetBranchCode());
-    			int appstatus=preparedStatement2.executeUpdate();
+    			
     			ResultSet dealrs=preparedStatement2.executeQuery();
     			if(dealrs.next())
     			{
@@ -491,7 +520,7 @@ public class TermDepositEOD {
             }
 		return false;
 	}
-	public boolean CreditPrincipalOnMaturity(ResultSet TDRs) throws SQLException 
+	public boolean CreditPrincipalOnMaturity(ResultSet TDRs, String StartDate) throws SQLException 
 	{
 		Connection lcl_conn_dt= utility.db_conn();
 		java.sql.Statement lcl_stmt;
@@ -499,7 +528,7 @@ public class TermDepositEOD {
 		String dealVoucherQuery="insert into tdr_deal_voucher(deal_id,voucher_id,approved_by) values ((select deal_id from tdr_deal where tdr_app_id= ?),?,?)";
 		String TransactionQuery="insert into transaction_tl (Amount,Cus_Account_ID,Voucher_ID,Trans_type_id) values (? ,? ,? ,?  ) ";
 		String updateCustAccountQuery= "Update account_tl set balance=balance+ ? where account_id =? ";
-		String updateTdrAccountQuery= "Update account_tl set balance=balance+ ?  where account_id =?";
+		String updateTdrAccountQuery= "Update account_tl set balance=balance- ?  where account_id =?";
 		String TDRAppClosedQuery="update tdr_application set tdr_app_status=5 where application_id = ?";
 		String TDRDealClosedQuery="update tdr_deal set deal_status = 5 where tdr_app_id = ?";
 		
@@ -508,7 +537,7 @@ public class TermDepositEOD {
 		PreparedStatement preparedStatement = lcl_conn_dt.prepareStatement(CreateVoucherquery);
 		
 		preparedStatement.setString(1,Session.GetBranchCode());
-		preparedStatement.setString(2,Session.GetBranchDate());
+		preparedStatement.setString(2,StartDate);
 		ResultSet voucher= preparedStatement.executeQuery();
 
 		long voucherID=0;
@@ -540,7 +569,7 @@ public class TermDepositEOD {
 			
 			preparedStatement2.setDouble(1, TDRs.getDouble("Amount"));
 			long tdrAccountID= Long.parseLong(TDRSS.GetTDRAccountID(TDRs.getString("accountno")));
-			preparedStatement2.setLong(2,   TDRs.getLong("account_id"));
+			preparedStatement2.setLong(2,   tdrAccountID);
 			preparedStatement2.setLong(3, voucherID);
 			preparedStatement2.setInt(4, 1);
 			crdstatus=preparedStatement2.executeUpdate();
@@ -552,7 +581,7 @@ public class TermDepositEOD {
 			
 			PreparedStatement preparedStatement4 = lcl_conn_dt.prepareStatement(updateTdrAccountQuery);
 			preparedStatement4.setDouble(1, TDRs.getDouble("Amount"));
-			preparedStatement4.setLong(2, TDRs.getLong("account_id"));
+			preparedStatement4.setLong(2, tdrAccountID);
 			updateTdrAccountstatus=	preparedStatement4.executeUpdate();
 			
 			if(debitstatus >0 && crdstatus >0 && updateCustAccountStatus> 0 && updateTdrAccountstatus >0 )

@@ -239,8 +239,8 @@ public class MainMenu {
 	                		  }
 	                		  else {
 	                			  TDEOD.TDRMonthlyPayoutProcess(Session.GetBranchDate(),formattedDate);
-//	                			  br.SetDate(formattedDate);
-//		                		  brnDtField.setText(Session.GetBranchDate());
+	                			  br.SetDate(formattedDate);
+		                		  brnDtField.setText(Session.GetBranchDate());
 		                		  
 	                		  }
 	                		 

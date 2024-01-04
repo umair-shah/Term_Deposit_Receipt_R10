@@ -9,7 +9,7 @@ public class LoginUserService {
 	
 	public boolean ValidateBranch(String branchCode)
 	{
-		String loginQuery = "Select brn_cd from branch_tl where brn_cd = '" + branchCode + "'";
+		String loginQuery = "Select lpad(brn_cd,4,'0') from branch_tl where lpad(brn_cd,4,'0') = '" + branchCode + "'";
 		java.sql.Statement lcl_stmt;
 		ResultSet rs =null;
 		Connection lcl_conn_dt = utility.db_conn();
@@ -37,7 +37,7 @@ public class LoginUserService {
 	public LoginUserDTO ValidateUser(String branchCode, String userID, String password) 
 	{
 		LoginUserDTO loginUserDTO = new LoginUserDTO();
-		String loginQuery = "Select ut.*,bt.today_date FROM Users_TL UT INNER JOIN Branch_Tl BT ON UT.Brn_Cd = BT.BRN_Cd WHERE LOGIN_ID = '" + userID + "' AND UT.Brn_cd = '"+ branchCode +"'" ;
+		String loginQuery = "Select ut.*, bt.today_date FROM Users_TL UT INNER JOIN Branch_Tl BT ON UT.Brn_Cd = BT.BRN_Cd WHERE LOGIN_ID = '" + userID + "' AND lpad(UT.brn_cd,4,'0') = '"+ branchCode +"'" ;
 		java.sql.Statement lcl_stmt;
 		ResultSet rs =null;
 		Connection lcl_conn_dt = utility.db_conn();
@@ -53,6 +53,7 @@ public class LoginUserService {
 			if(rs.next())
 			{
 				String actual_branch = (String)rs.getString("BRN_CD");
+				actual_branch=utility.lpad(actual_branch,'0',4);
 				String actual_password = (String)rs.getString("PASSWORD");
 				//Checking
 				if(branchCode.equals(actual_branch) && password.equals(actual_password))
