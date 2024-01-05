@@ -877,7 +877,7 @@ public class TermDepositApplicationService {
 	{
 		String getSpecialRatesQuery="select tenure,tdr_rate from tdr_product where tenure < "
 				+ "(select ABS(MONTHS_BETWEEN('"+Session.GetBranchDate()+"','"+TDADTO.GetApplicationDate()+"')) from tdr_Application tdr "
-				+ "where tdr.application_id= '"+TDADTO.GetApplicationNo().substring(0,6)+"') order by tenure FETCH FIRST ROW ONLY";
+				+ "where tdr.application_id= '"+TDADTO.GetApplicationNo().substring(0,5)+"') order by tenure FETCH FIRST ROW ONLY";
 		Connection lcl_conn_dt= utility.db_conn();
 		float special_rate =0 ;
 		int tenure =0 ;
@@ -1021,7 +1021,8 @@ public class TermDepositApplicationService {
 			if (actualProfit > profitPaid)
 			{
 				float profitToBePaid = actualProfit - profitPaid;
-				float Tax = (float) (profitToBePaid * 0.17);
+				float taxRate = getTaxRate();
+				float Tax = (float) (profitToBePaid * taxRate);
 				PreparedStatement preparedStatement7 = lcl_conn_dt.prepareStatement(ProfitFundVoucher);
 				preparedStatement7.setString(1, Session.GetBranchCode());
 				preparedStatement7.setString(2, Session.GetBranchDate());
@@ -1146,6 +1147,67 @@ public class TermDepositApplicationService {
 		else{
 			return null;
 		}
+	}
+	
+	public float getSavingRate()
+	{
+		String getSavingRateQuery="Select rate from rates where id =1";
+
+		Connection lcl_conn_dt = utility.db_conn();
+		ResultSet SavingRateRS=null;
+		
+		
+		java.sql.Statement lcl_stmt;
+		try {
+			//lcl_stmt= lcl_conn_dt.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+			 lcl_stmt= lcl_conn_dt.createStatement();
+			 SavingRateRS = lcl_stmt.executeQuery(getSavingRateQuery);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			if(SavingRateRS.next())
+			{
+				float TDRRate = SavingRateRS.getFloat("rate");
+				return TDRRate;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return (float) 0.0;
+	}
+	public float getTaxRate()
+	{
+		String getSavingRateQuery="Select rate from rates where id =2";
+
+		Connection lcl_conn_dt = utility.db_conn();
+		ResultSet taxRateRS=null;
+		
+		
+		java.sql.Statement lcl_stmt;
+		try {
+			//lcl_stmt= lcl_conn_dt.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+			 lcl_stmt= lcl_conn_dt.createStatement();
+			 taxRateRS = lcl_stmt.executeQuery(getSavingRateQuery);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			if(taxRateRS.next())
+			{
+				float TDRRate = taxRateRS.getFloat("rate");
+				return TDRRate;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return (float) 0.0;
 	}
 	/**
 	 * @param args

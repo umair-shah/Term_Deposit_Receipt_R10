@@ -102,6 +102,22 @@ import java.text.SimpleDateFormat;
             return new  Object[] {0, 0}; // or handle error appropriately
         }
     }
+    public static long daysBetween(String date1, int monthsToAdd, String date2) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = sdf.parse(date1);
+        Date d2 = sdf.parse(date2);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d1);
+        cal.add(Calendar.MONTH,monthsToAdd);
+        long day1 = cal.getTimeInMillis();
+        cal.setTime(d2);
+        long day2 = cal.getTimeInMillis();
+
+        long daysBetween = (day2 - day1) / (1000 * 60 * 60 * 24);
+
+        return daysBetween;
+    }
     public static String addDayToDate(String date, int day) throws ParseException {
 
     	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");

@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.FileHandler;
@@ -962,12 +963,20 @@ public class TermDepositApplication {
 		//calculating actual profit to be paid
 		float payableProfit=0;
 		float actual_profit_tobe_paid=0;
-		Object [] dateDiff = utility.calculateDateDifference(TDRAppDto.GetApplicationDate(),tenure,Session.GetBranchDate());
+		long savingDays=0;
+		try {
+			savingDays = utility.daysBetween(TDRAppDto.GetApplicationDate(),tenure,Session.GetBranchDate());
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 				///calculate the payable profit as per the previous tenure
+		float savingRate= (float)tdrService.getSavingRate();
+		
 		payableProfit+=(tdrRate/100) * TDRAppDto.GetTDRAmount();
 		//saving account Rate on remaing duration. 
-		payableProfit+= (float)(5/100.0)*TDRAppDto.GetTDRAmount()* Float.parseFloat(dateDiff[0].toString());
-		payableProfit+= (float)((5/100.0)* TDRAppDto.GetTDRAmount() * Float.parseFloat(dateDiff[1].toString())/30);;
+		payableProfit+= (float)((savingRate/100.0)*TDRAppDto.GetTDRAmount()*(savingDays/365.0));
+//		payableProfit+= (float)((savingRate/100.0)* TDRAppDto.GetTDRAmount() * Float.parseFloat(dateDiff[1].toString())/30);;
 		actual_profit_tobe_paid=payableProfit-totalProfitPaid;
 		
 		DecimalFormat decimalFormat = new DecimalFormat("#.##");

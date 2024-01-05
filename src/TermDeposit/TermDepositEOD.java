@@ -180,10 +180,10 @@ public class TermDepositEOD {
 		String withHoldingTaxCreditTransaction="insert into transaction_tl (Amount,internal_account_id,Voucher_ID,Trans_type_id) values (? ,2 ,? ,2  )"; //TDR profit WHT transaction_type_id
 		//String TaxUpdateCustAccount="Update account_tl set balance=balance- ?  where account_id =?";
 		String TaxUpdateTaxAccount="Update internal_account_tl set balance=balance+ ?  where internal_account_id =2";
-		
+		float taxRate= TDRSS.getTaxRate();
 		
 		float profitToBePaid = (float)(((TDRs.getFloat("amount") * TDRs.getFloat("TDR_RATE") / 100.0)*(1.0 / TDRs.getFloat("Tenure"))));
-		float Tax = (float) (profitToBePaid * 0.17);
+		float Tax = (float) (profitToBePaid * taxRate);
 		
 		PreparedStatement preparedStatement7 = lcl_conn_dt.prepareStatement(ProfitFundVoucher);
 		preparedStatement7.setString(1, Session.GetBranchCode());
@@ -276,7 +276,8 @@ public class TermDepositEOD {
 		String TDRDealStatusUpdateQuery="update tdr_deal set deal_status =(Select ID from tdr_deal_status where DESC='Maturity Closed') where tdr_app_id = ?";
 
 		float profitToBePaid = (float)(TDRs.getFloat("amount") *  TDRs.getFloat("TDR_RATE") / 100.0);
-		float Tax = (float) (profitToBePaid * 0.17);
+		float taxRate= TDRSS.getTaxRate();
+		float Tax = (float) (profitToBePaid * taxRate);
 		
 		PreparedStatement preparedStatement7 = lcl_conn_dt.prepareStatement(ProfitFundVoucher);
 		preparedStatement7.setString(1, Session.GetBranchCode());
