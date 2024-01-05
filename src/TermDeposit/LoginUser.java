@@ -11,14 +11,17 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.border.TitledBorder;
 
 import Utilities.MaxLengthNumericField;
 import Utilities.MaxLengthPwdField;
 import Utilities.MaxLengthTextField;
+import Utilities.utility;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -46,18 +49,17 @@ public class LoginUser {
 		final JFrame frame = new JFrame("Login");
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(800,600);
+		frame.setSize(701,445);
 		frame.setLocationRelativeTo(null);
 		
 		JPanel panel = new JPanel();
-		panel.setBackground(new Color(0, 128, 128));
+		panel.setBackground(new Color(143, 188, 143));
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
 		
 		
 
-        
-        SpinnerDateModel model = new SpinnerDateModel();
+		SpinnerDateModel model = new SpinnerDateModel();
         final JSpinner spinner = new JSpinner(model);
         JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "dd/MM/yyyy");
         spinner.setEditor(editor);
@@ -68,47 +70,50 @@ public class LoginUser {
         
 		
 		panel.repaint();
-		branchCodeField = new MaxLengthNumericField(4);
-		branchCodeField.setToolTipText("");
-		branchCodeField.setBounds(458, 223, 86, 20);
-		panel.add(branchCodeField);
-		branchCodeField.setColumns(10);
-		
-		userIDField = new MaxLengthTextField(10);
-		userIDField.setBounds(565, 223, 166, 20);
-		panel.add(userIDField);
-		userIDField.setColumns(10);
 		
 		passwordField = new MaxLengthPwdField(10);
-		passwordField.setBounds(458, 278, 273, 20);
+		passwordField.setBounds(403, 221, 200, 20);
 		panel.add(passwordField);
 		
 		logoLabel = new JLabel("");
-		ImageIcon logoIcon = new ImageIcon("C:/Users/ushah.27501/IBM/rationalsdp/workspace/Term_Deposite_Reciept/Resources/Logo.png");
+		ImageIcon logoIcon = new ImageIcon("C:/Users/Mhammad.27388/Desktop/logo.png");
 		Image scaledLogoImage = logoIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
 		ImageIcon scaledLogoIcon = new ImageIcon(scaledLogoImage);
 		logoLabel.setIcon(scaledLogoIcon);
-		logoLabel.setBounds(70, 60, 311, 356);
+		logoLabel.setBounds(10, 30, 311, 356);
 		panel.add(logoLabel);
 		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(143, 188, 143));
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Login", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.setBounds(344, 131, 294, 194);
+		panel.add(panel_1);
+		panel_1.setLayout(null);
+		
+		userIDField = new MaxLengthTextField(10);
+		userIDField.setBounds(128, 37, 133, 20);
+		panel_1.add(userIDField);
+		userIDField.setColumns(10);
+		branchCodeField = new MaxLengthNumericField(4);
+		branchCodeField.setBounds(58, 37, 60, 20);
+		panel_1.add(branchCodeField);
+		branchCodeField.setToolTipText("");
+		branchCodeField.setColumns(10);
+		
 		JButton loginButton = new JButton("Login");
-		loginButton.setBounds(458, 333, 89, 23);
-		panel.add(loginButton);
+		loginButton.setBounds(58, 148, 89, 23);
+		panel_1.add(loginButton);
 		
 		JButton exitButton = new JButton("Exit");
-		exitButton.setBounds(642, 333, 89, 23);
-		panel.add(exitButton);
+		exitButton.setBounds(172, 148, 89, 23);
+		panel_1.add(exitButton);
 		
-		JLabel loginTitle = new JLabel("Login");
-		loginTitle.setFont(new Font("Tahoma", Font.BOLD, 18));
-		loginTitle.setBounds(458, 135, 273, 59);
-		panel.add(loginTitle);
 		frame.setVisible(true);
 		
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent Login) {
-				String branchCode = branchCodeField.getText().toString();
+				String branchCode = utility.lpad(branchCodeField.getText().toString(), '0', 4);
 				String userId = userIDField.getText().toString();
 				String password = passwordField.getText().toString();
 				LoginUserService loginUserService = new LoginUserService();

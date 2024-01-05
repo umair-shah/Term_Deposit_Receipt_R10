@@ -18,7 +18,7 @@ public class SearchAccountService {
 		AccountDTO accountDTO = new AccountDTO();
 		//SELECT A.Account_No, A.Title, A.Brn_Cd, B.BRN_NAME, B.TODAY_DATE, C.CURRENCY_NAME FROM BRANCH_TL B INNER JOIN ACCOUNT_TL A ON A.Brn_Cd = B.Brn_Cd INNER JOIN Currency C ON A.Curr_Cd_Id = C.Curr_Code WHERE A.Account_No = '123456789';
 		String accountSearchQuery = "Select A.Account_ID,A.Title,B.Brn_cd,B.BRN_Name,B.today_date,C.Currency_Name,A.Balance,S.DESC,A.Account_ID from Account_tl A inner join Branch_tl B on A.brn_ID= B.brn_ID inner join Customer Cus on A.Customer_ID= Cus.Customer_ID inner join Currency C on A.Curr_CD_ID= C.ID Inner Join Account_Status S on S.ID=A.Status_ID inner join Account_type At on A.Acc_type_ID = At.Acc_type_ID " +
-				" WHERE B.Brn_cd = '"+ Session.GetBranchCode() +"' and lpad(At.Acc_Type_CD,4,'0')= '"+accType+"' and lpad(Cus.Customer_No,6,'0')='"+customerNo+"' and A.Check_Digit='"+chkDigit+"' and lpad(A.run_no,2,'0')='"+runNo+"' -- and B.Brn_cd='"+Session.GetBranchCode()+"'";
+				" WHERE B.Brn_cd = '"+ Session.GetBranchCode() +"' and B.Brn_cd = '" + brnCd + "' and lpad(At.Acc_Type_CD,4,'0')= '"+accType+"' and At.ACC_TYPE_ID != 2 AND lpad(Cus.Customer_No,6,'0')='"+customerNo+"' and A.Check_Digit='"+chkDigit+"' and lpad(A.run_no,2,'0')='"+runNo+"' -- and B.Brn_cd='"+Session.GetBranchCode()+"'";
 		Connection lcl_conn_dt = utility.db_conn();
 		ResultSet accountRs =null;
 		java.sql.Statement lcl_stmt;

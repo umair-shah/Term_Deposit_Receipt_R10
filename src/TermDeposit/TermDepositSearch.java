@@ -48,7 +48,7 @@ public class TermDepositSearch {
 		frmSearchDeal.setVisible(true);
 		
 		JPanel panel = new JPanel();
-		panel.setBackground(new Color(0, 128, 128));
+		panel.setBackground(new Color(143, 188, 143));
 		frmSearchDeal.getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
 		
@@ -118,18 +118,21 @@ public class TermDepositSearch {
 					JOptionPane.showMessageDialog(frame, "Enter complete deal number!","Validation Error",JOptionPane.ERROR_MESSAGE);
 				}
 				else{
-					String DealId= String.format(utility.lpad(maxDealNoField.getText().toString(), '0', 6))+Session.GetBranchCode()+dateField.getText().toString()+yearField.getText().toString();
-					TermDepositApplicationDTO TDADTO =TDRSS.GetTDRDealDetails(DealId);
-					if(TDADTO.GetApplicationDate() == Session.GetBranchDate() )
-		        	{
-						JOptionPane.showMessageDialog(frame, "Premature Encashment is not possible on same day","Invalid Operation",JOptionPane.ERROR_MESSAGE);
-
-		        	}
+					String DealId= String.format(utility.lpad(maxDealNoField.getText().toString(), '0', 6))+Session.GetBranchCode()+utility.lpad(dateField.getText().toString(), '0', 2)+yearField.getText().toString();
+					TermDepositApplicationDTO TDADTO =TDRSS.GetTDRDealDetails(DealId,21);
 					if(TDADTO.GetTDRDealId()!= null)
 					{
-						frmSearchDeal.dispose();
-						TermDepositApplication TDRApplication= new TermDepositApplication();
-						TDRApplication.PrematureEncashment(TDADTO);
+						if(TDADTO.GetApplicationDate().equals(Session.GetBranchDate()) )
+			        	{
+							JOptionPane.showMessageDialog(frame, "Premature Encashment is not possible on same day","Invalid Operation",JOptionPane.ERROR_MESSAGE);
+
+			        	}
+						else
+						{
+							frmSearchDeal.dispose();
+							TermDepositApplication TDRApplication= new TermDepositApplication();
+							TDRApplication.PrematureEncashment(TDADTO);
+						}
 					}
 					
 					else{
@@ -152,7 +155,7 @@ public class TermDepositSearch {
 		frame.setVisible(true);
 		
 		JPanel panel = new JPanel();
-		panel.setBackground(new Color(0, 128, 128));
+		panel.setBackground(new Color(143, 188, 143));
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
 
@@ -280,7 +283,8 @@ public class TermDepositSearch {
 		        if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
 					//JOptionPane.showMessageDialog(frame, "Amount is required!","row = "+table.getValueAt(row, 0).toString() ,JOptionPane.ERROR_MESSAGE);
 		        	String DealNo= table.getValueAt(row, 1).toString();
-		        	TermDepositApplicationDTO TDRAppDto = TDRSS.GetTDRDealDetails(DealNo);
+		        	DealNo.replace("/","");
+		        	TermDepositApplicationDTO TDRAppDto = TDRSS.GetTDRDealDetails(DealNo,3);
 		        	TermDepositApplication TDRApplication= new TermDepositApplication();
 		        	TDRApplication.PrematureEncashment(TDRAppDto);
 		        	

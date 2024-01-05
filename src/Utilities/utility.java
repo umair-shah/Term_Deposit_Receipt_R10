@@ -1,8 +1,11 @@
 package Utilities;
 import java.util.Calendar;
+
+import javax.swing.JOptionPane;
 import java.util.Date;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,7 +22,7 @@ import java.text.SimpleDateFormat;
 	{
 		try 
 		{
-			Class.forName("com.ibm.db2.jcc.DB2Driver");
+			Class.forName("COM.ibm.db2.jdbc.app.DB2Driver");
 
 		} 
 		catch (ClassNotFoundException e1) 
@@ -31,7 +34,7 @@ import java.text.SimpleDateFormat;
 		try
 		{
 			 //lcl_conn = java.sql.DriverManager.getConnection("jdbc:db2://10.51.41.100:50000/US27501", "db2admin", "admin123/?");
-			lcl_conn = java.sql.DriverManager.getConnection("jdbc:db2://localhost:50000/US27501", "db2admin", "db2admin/?");
+			lcl_conn = java.sql.DriverManager.getConnection("jdbc:db2:US27501", "db2admin", "admin123/?");
 			if(lcl_conn != null)
 			{
 				return lcl_conn;
@@ -98,6 +101,58 @@ import java.text.SimpleDateFormat;
             e.printStackTrace();
             return new  Object[] {0, 0}; // or handle error appropriately
         }
+    }
+    public static String addDayToDate(String date, int day) throws ParseException {
+
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    	Calendar calendar = Calendar.getInstance();
+        calendar.setTime(format.parse(date));
+        calendar.add(Calendar.DAY_OF_MONTH, day);
+        String result = format.format(calendar.getTime());
+      
+        return result;
+    }
+    public static Date getMaturityDate(String date, int selectedTenure)
+	{
+		String maturityDateQuery = "SELECT Add_Months('"+date+"',p.tenure) maturity_date FROM tdr_Product p where p.ID = '"+selectedTenure+"'";
+		Connection lcl_conn_dt = utility.db_conn();
+		ResultSet maturityDate =null;
+		java.sql.Statement lcl_stmt;
+		try {
+			 lcl_stmt= lcl_conn_dt.createStatement();
+			 maturityDate = lcl_stmt.executeQuery(maturityDateQuery);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		Date mdate=null;
+		try {
+			while(maturityDate.next())
+			{
+				 mdate= maturityDate.getDate("maturity_date");
+			}
+			return mdate;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+    public static String addMonthToDate(String dateString, int month) {
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date= null;
+		try {
+			date = format.parse(dateString);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MONTH, month);
+        Date newDate = calendar.getTime();
+        
+        return format.format(newDate);
     }
 
 

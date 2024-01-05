@@ -34,6 +34,9 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import javax.swing.border.TitledBorder;
+import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 public class TermDepositApplication {
 	private JFrame frame;
 	private JPanel panel;
@@ -74,6 +77,11 @@ public class TermDepositApplication {
 	JTextField tdrRateField;
 	private JLabel tdrRate;
 	TermDepositApplicationService tdrService;
+	private JPanel panel_2;
+	private JPanel panel_3;
+	private JPanel panel_4;
+	private JPanel panel_5;
+	private JPanel panel_6;
 	
 	
 	
@@ -115,134 +123,164 @@ public class TermDepositApplication {
 		frame = new JFrame("Term Deposit Application");
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setSize(662,656);
+		frame.setSize(599,711);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
 		panel = new JPanel();
-		panel.setBackground(new Color(0, 128, 128));
+		panel.setBackground(new Color(143, 188, 143));
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
 		
-		accountTitleField = new JTextField();
-		accountTitleField.setEditable(false);
-		accountTitleField.setBounds(113, 30, 202, 20);
-		panel.add(accountTitleField);
-		accountTitleField.setColumns(10);
-		
-		branchNameField = new JTextField();
-		branchNameField.setEditable(false);
-		branchNameField.setBounds(436, 30, 210, 20);
-		panel.add(branchNameField);
-		branchNameField.setColumns(10);
-		
-		lblAccountTitle = new JLabel("Account Title");
-		lblAccountTitle.setBounds(28, 33, 96, 14);
-		panel.add(lblAccountTitle);
-		
-		lblBranchName = new JLabel("Branch Name");
-		lblBranchName.setBounds(340, 33, 100, 14);
-		panel.add(lblBranchName);
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(143, 188, 143));
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Account Details", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.setBounds(10, 11, 573, 146);
+		panel.add(panel_1);
+		panel_1.setLayout(null);
 		
 		lblAccountNo = new JLabel("Account No");
-		lblAccountNo.setBounds(28, 78, 96, 14);
-		panel.add(lblAccountNo);
+		lblAccountNo.setBounds(10, 56, 96, 14);
+		panel_1.add(lblAccountNo);
 		
 		accountNoField = new JTextField();
+		accountNoField.setBounds(102, 53, 188, 20);
+		panel_1.add(accountNoField);
 		accountNoField.setEditable(false);
 		accountNoField.setColumns(10);
-		accountNoField.setBounds(113, 75, 202, 20);
-		panel.add(accountNoField);
-		
-		lblCurrency = new JLabel("Currency");
-		lblCurrency.setBounds(340, 78, 100, 14);
-		panel.add(lblCurrency);
-		
-		currencyField = new JTextField();
-		currencyField.setEditable(false);
-		currencyField.setColumns(10);
-		currencyField.setBounds(436, 75, 210, 20);
-		panel.add(currencyField);
 		
 		lblBranchCode = new JLabel("Branch Code");
-		lblBranchCode.setBounds(28, 128, 96, 14);
-		panel.add(lblBranchCode);
+		lblBranchCode.setBounds(314, 93, 96, 14);
+		panel_1.add(lblBranchCode);
+		
+		lblAccountTitle = new JLabel("Account Title");
+		lblAccountTitle.setBounds(10, 22, 96, 14);
+		panel_1.add(lblAccountTitle);
 		
 		branchCodeField = new JTextField();
+		branchCodeField.setBounds(401, 90, 130, 20);
+		panel_1.add(branchCodeField);
 		branchCodeField.setEditable(false);
 		branchCodeField.setColumns(10);
-		branchCodeField.setBounds(113, 125, 130, 20);
-		panel.add(branchCodeField);
 		
-		lblDate = new JLabel("Date");
-		lblDate.setBounds(340, 128, 100, 14);
-		panel.add(lblDate);
+		lblBranchName = new JLabel("Branch Name");
+		lblBranchName.setBounds(10, 93, 100, 14);
+		panel_1.add(lblBranchName);
 		
-		dateField = new JTextField();
-		dateField.setEditable(false);
-		dateField.setColumns(10);
-		dateField.setBounds(436, 125, 153, 20);
-		panel.add(dateField);
+		branchNameField = new JTextField();
+		branchNameField.setBounds(102, 90, 188, 20);
+		panel_1.add(branchNameField);
+		branchNameField.setEditable(false);
+		branchNameField.setColumns(10);
+		
+		lblCurrency = new JLabel("Currency");
+		lblCurrency.setBounds(314, 56, 100, 14);
+		panel_1.add(lblCurrency);
+		
+		currencyField = new JTextField();
+		currencyField.setBounds(401, 53, 130, 20);
+		panel_1.add(currencyField);
+		currencyField.setEditable(false);
+		currencyField.setColumns(10);
+		
+		accountTitleField = new JTextField();
+		accountTitleField.setBounds(102, 19, 429, 20);
+		panel_1.add(accountTitleField);
+		accountTitleField.setEditable(false);
+		accountTitleField.setColumns(10);
+		
+		panel_2 = new JPanel();
+		panel_2.setBorder(new TitledBorder(null, "Term Deposit Details", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_2.setBackground(new Color(143, 188, 143));
+		panel_2.setBounds(10, 175, 573, 231);
+		panel.add(panel_2);
+		panel_2.setLayout(null);
 		
 		lblModeOfFund = new JLabel("Mode of Fund");
-		lblModeOfFund.setBounds(28, 175, 96, 14);
-		panel.add(lblModeOfFund);
+		lblModeOfFund.setBounds(282, 59, 96, 14);
+		panel_2.add(lblModeOfFund);
 		
 		modeOfFundComboBox = new JComboBox<ComboItem>();
-		modeOfFundComboBox.setBounds(194, 172, 191, 20);
-		panel.add(modeOfFundComboBox);
+		modeOfFundComboBox.setBounds(378, 56, 170, 20);
+		panel_2.add(modeOfFundComboBox);
+
 		
 		
 		lblTotalAmount = new JLabel("Total Amount");
-		lblTotalAmount.setBounds(28, 221, 96, 14);
-		panel.add(lblTotalAmount);
+		lblTotalAmount.setBounds(10, 59, 96, 14);
+		panel_2.add(lblTotalAmount);
 		
 		totalAmountField = new MaxLengthAmountField(16);
+		totalAmountField.setBounds(96, 56, 161, 20);
+		panel_2.add(totalAmountField);
 		totalAmountField.setColumns(10);
-		totalAmountField.setBounds(194, 218, 191, 20);
-		panel.add(totalAmountField);
+		
+		tdrRate = new JLabel("TDR Rate");
+		tdrRate.setBounds(282, 87, 96, 14);
+		panel_2.add(tdrRate);
 		
 		lblTenure = new JLabel("Tenure");
-		lblTenure.setBounds(28, 273, 96, 14);
-		panel.add(lblTenure);
+		lblTenure.setBounds(10, 87, 96, 14);
+		panel_2.add(lblTenure);
 		
 		tenureComboBox = new JComboBox<ComboItem>();
-		tenureComboBox.setBounds(194, 270, 191, 20);
-		panel.add(tenureComboBox);
+		tenureComboBox.setBounds(96, 84, 161, 20);
+		panel_2.add(tenureComboBox);
+		
+		tdrRateField = new JTextField();
+		tdrRateField.setBounds(378, 84, 170, 20);
+		panel_2.add(tdrRateField);
+		tdrRateField.setColumns(10);
 		
 		lblActionAtMaturity = new JLabel("Action at Maturity");
-		lblActionAtMaturity.setBounds(28, 330, 137, 14);
-		panel.add(lblActionAtMaturity);
+		lblActionAtMaturity.setBounds(10, 124, 137, 14);
+		panel_2.add(lblActionAtMaturity);
 		
 		actionAtMaturityComboBox = new JComboBox<ComboItem>();
-		actionAtMaturityComboBox.setBounds(194, 327, 304, 20);
-		panel.add(actionAtMaturityComboBox);
+		actionAtMaturityComboBox.setBounds(150, 121, 260, 20);
+		panel_2.add(actionAtMaturityComboBox);
 		
 		lblProfitNomAccount = new JLabel("Profit Nom Account");
-		lblProfitNomAccount.setBounds(28, 387, 137, 14);
-		panel.add(lblProfitNomAccount);
+		lblProfitNomAccount.setBounds(10, 152, 137, 14);
+		panel_2.add(lblProfitNomAccount);
 		
 		profitNomAccountField = new JTextField();
+		profitNomAccountField.setBounds(150, 149, 260, 20);
+		panel_2.add(profitNomAccountField);
 		profitNomAccountField.setColumns(10);
-		profitNomAccountField.setBounds(194, 384, 304, 20);
 		profitNomAccountField.setEditable(false);
-		panel.add(profitNomAccountField);
 		
-		lblPrincipalFundCr = new JLabel("Principal Fund Cr Account");
-		lblPrincipalFundCr.setBounds(28, 447, 156, 14);
-		panel.add(lblPrincipalFundCr);
+		lblPrincipalFundCr = new JLabel("Principal Fund Account");
+		lblPrincipalFundCr.setBounds(10, 183, 156, 14);
+		panel_2.add(lblPrincipalFundCr);
 		
 		principalFundCrField = new JTextField();
+		principalFundCrField.setBounds(150, 180, 260, 20);
+		panel_2.add(principalFundCrField);
 		principalFundCrField.setColumns(10);
-		principalFundCrField.setBounds(194, 447, 304, 20);
 		principalFundCrField.setEditable(false);
-		panel.add(principalFundCrField);
 		
+		lblDate = new JLabel("Date");
+		lblDate.setBounds(10, 31, 100, 14);
+		panel_2.add(lblDate);
 		
-		lblFileName = new JLabel("File Name");
-		lblFileName.setBounds(138, 505, 164, 14);
+		dateField = new JTextField();
+		dateField.setBounds(97, 25, 160, 20);
+		panel_2.add(dateField);
+		dateField.setEditable(false);
+		dateField.setColumns(10);
+		
+		panel_3 = new JPanel();
+		panel_3.setBorder(new TitledBorder(null, "Upload File", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_3.setBackground(new Color(143, 188, 143));
+		panel_3.setBounds(10, 417, 573, 85);
+		panel.add(panel_3);
+		panel_3.setLayout(null);
+		
 		
 		selectFileButton = new JButton("Select File");
+		selectFileButton.setBounds(10, 26, 114, 23);
+		panel_3.add(selectFileButton);
 		selectFileButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try{
@@ -263,27 +301,20 @@ public class TermDepositApplication {
 
 			}
 		});
-		selectFileButton.setBounds(28, 501, 89, 23);
-		panel.add(selectFileButton);
+		
+		
+		lblFileName = new JLabel("File Name");
+		lblFileName.setBounds(134, 30, 177, 14);
+		panel_3.add(lblFileName);
 		
 		JLabel lblMaxMbjpgjpegpngpdf = new JLabel("Max(5 MB) *JPG,*JPEG,*PNG,*PDF");
+		lblMaxMbjpgjpegpngpdf.setBounds(10, 60, 198, 14);
+		panel_3.add(lblMaxMbjpgjpegpngpdf);
 		lblMaxMbjpgjpegpngpdf.setLabelFor(selectFileButton);
-		lblMaxMbjpgjpegpngpdf.setBounds(28, 535, 177, 14);
-		panel.add(lblMaxMbjpgjpegpngpdf);
 		
-
-		panel.add(lblFileName);
-		
-		tdrRate = new JLabel("TDR Rate");
-		tdrRate.setBounds(409, 273, 96, 14);
-		panel.add(tdrRate);
-		
-		tdrRateField = new JTextField();
-		tdrRateField.setColumns(10);
-		tdrRateField.setBounds(468, 270, 89, 20);
-		panel.add(tdrRateField);
-		
-		
+		actionAtMaturityComboBox.addItem(new ComboItem(0,"Select Action"));
+		tenureComboBox.addItem(new ComboItem(0,"Select Tenure"));
+		modeOfFundComboBox.addItem(new ComboItem(0,"Select Mode"));
 		
 		
 		ResultSet modeOfFundRs = tdrService.GetModeofFunds();
@@ -334,16 +365,23 @@ public class TermDepositApplication {
 	
 	public void UpdateTDA(final TermDepositApplicationDTO TDRAppDto)
 	{
+		panel_4 = new JPanel();
+		panel_4.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_4.setBackground(new Color(143, 188, 143));
+		panel_4.setBounds(10, 513, 573, 45);
+		panel.add(panel_4);
+		panel_4.setLayout(null);
+		
 		updateButton = new JButton("Update");
-		updateButton.setBounds(471, 501, 117, 23);
-		panel.add(updateButton);
+		updateButton.setBounds(431, 11, 132, 23);
+		panel_4.add(updateButton);
 		panel.repaint();
 
 		final AccountDTO accdto=TDRAppDto.GetAccountDTO();
 		
 		btnViewFile = new JButton("View File");
-		btnViewFile.setBounds(249, 501, 89, 23);
-		panel.add(btnViewFile);
+		btnViewFile.setBounds(321, 26, 89, 23);
+		panel_3.add(btnViewFile);
 		btnViewFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(filehandler.path != null)
@@ -406,11 +444,14 @@ public class TermDepositApplication {
 			public void actionPerformed(ActionEvent e)
 			{
 				ComboItem selectedTenure= (ComboItem) tenureComboBox.getSelectedItem();
-				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString());
+				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString() + " %");
 			}
 		});
 		updateButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent updatebtnClicked) {
+			ComboItem tenureComboItem=(ComboItem) tenureComboBox.getSelectedItem();
+			ComboItem actionComboItem=(ComboItem) actionAtMaturityComboBox.getSelectedItem();
+			ComboItem modeOfFundComboItem=(ComboItem) modeOfFundComboBox.getSelectedItem();
 			if(totalAmountField.getText().isEmpty())
 			{
 				JOptionPane.showMessageDialog(frame, "Amount is required!","Enter Amount",JOptionPane.ERROR_MESSAGE);
@@ -425,6 +466,20 @@ public class TermDepositApplication {
 			{
 				JOptionPane.showMessageDialog(frame, "Credit Principal Account is reuired!","Enter Credit Principal Account",JOptionPane.ERROR_MESSAGE);
 			}
+			
+			else if(modeOfFundComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Mode of Fund not Selected","Select Mode of Fund",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(tenureComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Tenure not Selected","Select Tenure",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(actionComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Action at Maturity not Selected","Select Action at Maturity",JOptionPane.ERROR_MESSAGE);
+			}
+			
 			else if(Float.parseFloat(totalAmountField.getText()) > accdto.GetBalance() )
 			{
 				JOptionPane.showMessageDialog(frame, "Insufficient amount in account","Insufficient Amount",JOptionPane.ERROR_MESSAGE);
@@ -483,13 +538,20 @@ public class TermDepositApplication {
 	
 	public void NewTDA(final AccountDTO accountDTO)
 	{
+		panel_4 = new JPanel();
+		panel_4.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_4.setBackground(new Color(143, 188, 143));
+		panel_4.setBounds(10, 513, 573, 45);
+		panel.add(panel_4);
+		panel_4.setLayout(null);
+		
 		saveButton = new JButton("Save");
-		saveButton.setBounds(453, 580, 118, 23);
-		panel.add(saveButton);
+		saveButton.setBounds(431, 11, 132, 23);
+		panel_4.add(saveButton);
 		
 		btnViewFile = new JButton("View File");
-		btnViewFile.setBounds(249, 501, 89, 23);
-		panel.add(btnViewFile);
+		btnViewFile.setBounds(321, 26, 89, 23);
+		panel_3.add(btnViewFile);
 		btnViewFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(filehandler.path != null)
@@ -523,12 +585,15 @@ public class TermDepositApplication {
 			public void actionPerformed(ActionEvent e)
 			{
 				ComboItem selectedTenure= (ComboItem) tenureComboBox.getSelectedItem();
-				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString());
+				tdrRateField.setText(tdrService.GetTDRRate(selectedTenure.getId()).toString() + " %");
 			}
 		});
 		tdrRateField.setEditable(false);
 		saveButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent saveButtonClicked) {
+			ComboItem tenureComboItem=(ComboItem) tenureComboBox.getSelectedItem();
+			ComboItem actionComboItem=(ComboItem) actionAtMaturityComboBox.getSelectedItem();
+			ComboItem modeOfFundComboItem=(ComboItem) modeOfFundComboBox.getSelectedItem();
 			if(totalAmountField.getText().isEmpty())
 			{
 				JOptionPane.showMessageDialog(frame, "Amount is required!","Enter Amount",JOptionPane.ERROR_MESSAGE);
@@ -543,6 +608,22 @@ public class TermDepositApplication {
 			{
 				JOptionPane.showMessageDialog(frame, "Credit Principal Account is reuired!","Enter Credit Principal Account",JOptionPane.ERROR_MESSAGE);
 			}
+			
+			else if(modeOfFundComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Mode of Fund not Selected","Select Mode of Fund",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(tenureComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Tenure not Selected","Select Tenure",JOptionPane.ERROR_MESSAGE);
+			}
+			else if(actionComboItem.getId()== 0)
+			{
+				JOptionPane.showMessageDialog(frame, "Action at Maturity not Selected","Select Action at Maturity",JOptionPane.ERROR_MESSAGE);
+			}
+
+			
+			
 			else if(Float.parseFloat(totalAmountField.getText()) > accountDTO.GetBalance())
 			{
 				JOptionPane.showMessageDialog(frame, "Insufficient amount in account","Insufficient Amount",JOptionPane.ERROR_MESSAGE);
@@ -592,20 +673,27 @@ public class TermDepositApplication {
 
 	public void AuthorizeTDA(final TermDepositApplicationDTO TDRAppDto)
 	{
-		final AccountDTO accdto=TDRAppDto.GetAccountDTO();
-		rejectButton = new JButton("Reject");
-		rejectButton.setBounds(453, 580, 118, 23);
-		panel.add(rejectButton);
+		panel_4 = new JPanel();
+		panel_4.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_4.setBackground(new Color(143, 188, 143));
+		panel_4.setBounds(10, 513, 573, 45);
+		panel.add(panel_4);
+		panel_4.setLayout(null);
 		
+		final AccountDTO accdto=TDRAppDto.GetAccountDTO();
 		authorizeButton = new JButton("Authorize");
-		authorizeButton.setBounds(126, 580, 118, 23);
-		panel.add(authorizeButton);
+		authorizeButton.setBounds(101, 11, 118, 23);
+		panel_4.add(authorizeButton);
+		
+		rejectButton = new JButton("Reject");
+		rejectButton.setBounds(349, 11, 118, 23);
+		panel_4.add(rejectButton);
 		
 		authorizeButton.setEnabled(false);
 		rejectButton.setEnabled(false);
 		btnViewFile = new JButton("View File");
-		btnViewFile.setBounds(249, 501, 89, 23);
-		panel.add(btnViewFile);
+		btnViewFile.setBounds(321, 26, 89, 23);
+		panel_3.add(btnViewFile);
 		btnViewFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			filehandler.viewFile(TDRAppDto.GetFileData(), TDRAppDto.GetFileName());
@@ -662,14 +750,14 @@ public class TermDepositApplication {
 
 		authorizeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent authorizebtnClicked) {
-				int result = tdrService.AuthorizeTDRApplication(TDRAppDto);
-				if(result == 1)
+				String dealNo = tdrService.AuthorizeTDRApplication(TDRAppDto);
+				if(dealNo != null)
 				{
-					JOptionPane.showMessageDialog(frame, "Application Authorized Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Application Authorized Successfully \n Application ID = "+TDRAppDto.GetApplicationNo()+"\n Deal No = "+dealNo,"Successful",JOptionPane.INFORMATION_MESSAGE);
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(frame, "Application Authorized UnnnnnnnSuccessfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Application Authorized UnSuccessfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
 				}
 				frame.dispose();
 			}
@@ -692,13 +780,13 @@ public class TermDepositApplication {
 	public void OpenTDR(final TermDepositApplicationDTO TDRAppDto)
 	{
 		final AccountDTO accdto=TDRAppDto.GetAccountDTO();
-		btnOpenTDR = new JButton("Save");
-		btnOpenTDR.setBounds(453, 580, 118, 23);
-		panel.add(btnOpenTDR);
+		btnOpenTDR = new JButton("Open TDR");
+		btnOpenTDR.setBounds(431, 11, 132, 23);
+		panel_4.add(btnOpenTDR);
 		
 		btnViewFile = new JButton("View File");
-		btnViewFile.setBounds(249, 501, 89, 23);
-		panel.add(btnViewFile);
+		btnViewFile.setBounds(321, 26, 89, 23);
+		panel_3.add(btnViewFile);
 		btnViewFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			filehandler.viewFile(TDRAppDto.GetFileData(), TDRAppDto.GetFileName());
@@ -754,9 +842,9 @@ public class TermDepositApplication {
 			public void actionPerformed(ActionEvent authorizebtnClicked) {
 				
 				
-				int result = tdrService.OpenTDRApplication(TDRAppDto);
+				final String dealNo = tdrService.OpenTDRApplication(TDRAppDto);
 				
-				if(result == 1)
+				if(dealNo != null)
 				{
 					final JFrame frame = new JFrame("TDR Opening Voucher");
 					frame.setResizable(false);
@@ -766,14 +854,14 @@ public class TermDepositApplication {
 					frame.setVisible(true);
 					
 					JPanel panel = new JPanel();
-					panel.setBackground(new Color(0, 128, 128));
+					panel.setBackground(new Color(143, 188, 143));
 					frame.getContentPane().add(panel, BorderLayout.CENTER);
 					panel.setLayout(null);
 
-					String[] columnNames = {"S.No", "Account No","Amount", "Dr. / Cr."};
+					String[] columnNames = {"S.No", "Account No", "Account Title", "Debit", "Credit"};
 				
 
-					Object[][] data = tdrService.GetTDROpeningVoucher(TDRAppDto);
+					Object[][] data = tdrService.GetTellerTDROpeningVoucher(TDRAppDto);
 						
 					
 					DefaultTableModel model = new DefaultTableModel(data, columnNames){
@@ -790,15 +878,15 @@ public class TermDepositApplication {
 					//termDepositTable.setBounds(142, 196, 202, -91);
 					panel.add(jScrollPane);
 					jScrollPane.setSize(771,173);
-					JButton btnBack = new JButton("Back");
-					btnBack.addActionListener(new ActionListener() {
+					JButton btnOk = new JButton("Ok");
+					btnOk.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent arg0) {
 							frame.dispose();
-							JOptionPane.showMessageDialog(frame, "TDR Opened Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(frame, "TDR Opened Successfully \n Application ID = "+TDRAppDto.GetApplicationNo() + "\n Deal Number = "+dealNo,"Successful",JOptionPane.INFORMATION_MESSAGE);
 						}
 					});
-					btnBack.setBounds(690, 268, 89, 23);
-					panel.add(btnBack);
+					btnOk.setBounds(690, 268, 89, 23);
+					panel.add(btnOk);
 					jScrollPane.setVisible(true);
 					panel.repaint();
 				}
@@ -818,8 +906,8 @@ public class TermDepositApplication {
 		JButton prematureEncashmentButton;
 		filehandler=new UploadFile();
 		btnViewFile = new JButton("View File");
-		btnViewFile.setBounds(249, 501, 89, 23);
-		panel.add(btnViewFile);
+		btnViewFile.setBounds(321, 26, 89, 23);
+		panel_3.add(btnViewFile);
 		btnViewFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			filehandler.viewFile(TDRAppDto.GetFileData(), TDRAppDto.GetFileName());
@@ -870,41 +958,53 @@ public class TermDepositApplication {
 		actionAtMaturityComboBox.setEnabled(false);
 		selectFileButton.setEnabled(false);
 		
-		frame.setSize(662,819);
+		panel_5 = new JPanel();
+		panel_5.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_5.setBackground(new Color(143, 188, 143));
+		panel_5.setBounds(10, 513, 573, 85);
+		panel.add(panel_5);
+		panel_5.setLayout(null);
+		
 		JLabel lblProfitPaid = new JLabel("Profit Paid");
-		lblProfitPaid.setBounds(28, 583, 96, 14);
-		panel.add(lblProfitPaid);
+		lblProfitPaid.setBounds(10, 11, 86, 14);
+		panel_5.add(lblProfitPaid);
 		
 		MaxLengthAmountField profitPaidField = new MaxLengthAmountField(16);
+		profitPaidField.setBounds(119, 8, 157, 20);
+		panel_5.add(profitPaidField);
 		profitPaidField.setColumns(10);
-		profitPaidField.setBounds(194, 580, 191, 20);
-		panel.add(profitPaidField);
 		
 		JLabel lblProfitPayable = new JLabel("Profit Payable");
-		lblProfitPayable.setBounds(28, 630, 96, 14);
-		panel.add(lblProfitPayable);
+		lblProfitPayable.setBounds(298, 11, 110, 14);
+		panel_5.add(lblProfitPayable);
 		
 		MaxLengthAmountField profitPayableField = new MaxLengthAmountField(16);
+		profitPayableField.setBounds(406, 8, 157, 20);
+		panel_5.add(profitPayableField);
 		profitPayableField.setColumns(10);
-		profitPayableField.setBounds(194, 627, 191, 20);
-		panel.add(profitPayableField);
 		
 		JLabel lblPayableAmount = new JLabel("Payable Amount");
-		lblPayableAmount.setBounds(28, 678, 96, 14);
-		panel.add(lblPayableAmount);
+		lblPayableAmount.setBounds(10, 57, 96, 14);
+		panel_5.add(lblPayableAmount);
 		
-		MaxLengthAmountField payableAmountField = new MaxLengthAmountField(16);
+		JTextField payableAmountField = new JTextField();
+		payableAmountField.setBounds(119, 54, 158, 20);
+		panel_5.add(payableAmountField);
 		payableAmountField.setColumns(10);
-		payableAmountField.setBounds(194, 675, 191, 20);
-		panel.add(payableAmountField);
 		
-		
+		panel_6 = new JPanel();
+		panel_6.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_6.setBackground(new Color(143, 188, 143));
+		panel_6.setBounds(10, 609, 573, 50);
+		panel.add(panel_6);
+		panel_6.setLayout(null);
+	
 		
 		Object[][] data=tdrService.GetDealTransactions(utility.lpad(TDRAppDto.GetTDRDealId(), '0', 6));
 		float totalProfitPaid=0;
 		
 		for (int row = 0; row < data.length; row++) {
-			if(data[row][8].toString() == TDRAppDto.GetAccountNo() && Integer.parseInt(data[row][5].toString()) == 1  )
+			if(data[row][8].toString().equals(TDRAppDto.GetAccountNo())  && Integer.parseInt(data[row][5].toString()) == 1  )
 			{
 				totalProfitPaid+= Float.parseFloat(data[row][4].toString());
 			}
@@ -943,18 +1043,17 @@ public class TermDepositApplication {
 		{
 
 			prematureEncashmentButton = new JButton("Premature Encashment");
-			prematureEncashmentButton.setBounds(274, 733, 143, 23);
-			panel.add(prematureEncashmentButton);
+			prematureEncashmentButton.setBounds(188, 11, 197, 23);
+			panel_6.add(prematureEncashmentButton);
 			prematureEncashmentButton.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					
-					boolean updatepreencashstatus= tdrService.UpdateTDRPreEncashment(TDRAppDto);
-					if(updatepreencashstatus)
+					String dealno= tdrService.UpdateTDRPreEncashment(TDRAppDto);
+					if(dealno != null)
 					{
-						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo() + "\n Deal No = "+dealno,"Successful",JOptionPane.INFORMATION_MESSAGE);
 					}
 					else{
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction UnSuccessful \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
@@ -964,21 +1063,63 @@ public class TermDepositApplication {
 		}
 		else if(Session.getUserRoleId()==2)
 		{
+			final float paidprofit=totalProfitPaid;
+			final float actualProfit=payableProfit;
 			prematureEncashmentButton = new JButton("Authorize Pre Mature");
-			prematureEncashmentButton.setBounds(274, 733, 143, 23);
-			panel.add(prematureEncashmentButton);
-			final float profitpaid=totalProfitPaid;
-			final float actualprofit=payableProfit;
+			prematureEncashmentButton.setBounds(188, 11, 197, 23);
+			panel_6.add(prematureEncashmentButton);
 			prematureEncashmentButton.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
 					
-					boolean updatepreencashstatus= tdrService.PrematureEncashmentTransaction(TDRAppDto,profitpaid,actualprofit);
-					if(updatepreencashstatus)
+					String dealno= tdrService.PrematureEncashmentTransaction(TDRAppDto,paidprofit,actualProfit);
+					if(dealno != null)
 					{
-						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
+						final JFrame frame = new JFrame("TDR PreEncashment Voucher");
+						frame.setResizable(false);
+						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+						frame.setSize(834,362);
+						frame.setLocationRelativeTo(null);
+						frame.setVisible(true);
+						
+						JPanel panel = new JPanel();
+						panel.setBackground(new Color(0, 128, 128));
+						frame.getContentPane().add(panel, BorderLayout.CENTER);
+						panel.setLayout(null);
+
+						String[] columnNames = {"S.No", "Account No", "Account Title", "Debit", "Credit"};
+					
+
+						Object[][] data = tdrService.GetTDRPreMatureVoucher(TDRAppDto);
+							
+						
+						DefaultTableModel model = new DefaultTableModel(data, columnNames){
+							 public boolean isCellEditable(int row, int column)
+							 {
+							     return false;
+							 }
+							};
+						
+						JTable TDROpeningVoucherTable = new JTable(model);
+						JScrollPane jScrollPane = new JScrollPane(TDROpeningVoucherTable);
+						jScrollPane.setForeground(Color.BLACK);
+						jScrollPane.setLocation(31, 44);
+						//termDepositTable.setBounds(142, 196, 202, -91);
+						panel.add(jScrollPane);
+						jScrollPane.setSize(771,173);
+						JButton btnOk = new JButton("Ok");
+						btnOk.setBounds(690, 268, 89, 23);
+						panel.add(btnOk);
+						jScrollPane.setVisible(true);
+						panel.repaint();
+						btnOk.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) {
+								frame.dispose();
+							}
+							});
+						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction generated Successfully \n Application ID = "+TDRAppDto.GetApplicationNo() + "\n Deal No = "+dealno,"Successful",JOptionPane.INFORMATION_MESSAGE);
 					}
 					else{
 						JOptionPane.showMessageDialog(frame, "TDR Pre Encashment Transaction UnSuccessful \n Application ID = "+TDRAppDto.GetApplicationNo(),"Successful",JOptionPane.INFORMATION_MESSAGE);
